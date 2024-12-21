@@ -1,0 +1,24 @@
+﻿@model ClubManagementSystem.Models.FacilityCategories
+
+@{
+    ViewBag.Title = "Create Facility Category";
+}
+
+<form method="post" class="form">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="FacCategoryName">Facility Category Name</label>
+    <input asp-for="FacCategoryName" data-upper data-trim>
+    <span asp-validation-for="FacCategoryName"></span>
+
+    <label asp-for="Description">Description</label>
+    <input asp-for="Description" data-upper data-trim>
+    <span asp-validation-for="Description"></span>
+
+    <section>
+        <button>Submit</button>
+        <button type="reset">Reset</button>
+    </section>
+</form>
+
+

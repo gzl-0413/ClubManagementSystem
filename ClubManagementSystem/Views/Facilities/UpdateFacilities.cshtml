@@ -1,0 +1,64 @@
+﻿@model FacilityViewModel
+
+@{
+    ViewBag.Title = "Update Facilities";
+}
+
+<form method="post" enctype="multipart/form-data" class="form">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Id"></label>
+    <b>@Model?.Id</b>
+    <br>
+
+    <label asp-for="Name"></label>
+    <input asp-for="Name" data-trim>
+    <span asp-validation-for="Name"></span>
+
+    <label asp-for="Capacity"></label>
+    <input asp-for="Capacity" type="number" min="0">
+    <span asp-validation-for="Capacity"></span>
+
+    <label asp-for="Description"></label>
+    <textarea asp-for="Description"></textarea>
+    <span asp-validation-for="Description"></span>
+
+    <label asp-for="IsActive"></label>
+    <input asp-for="IsActive" type="checkbox">
+    <span asp-validation-for="IsActive"></span>
+
+    <label asp-for="FacilityCategoriesId"></label>
+    <select asp-for="FacilityCategoriesId" asp-items="ViewBag.FacilityCategories">
+        <option value="">- Select a Category -</option>
+    </select>
+    <span asp-validation-for="FacilityCategoriesId"></span>
+
+    <h4>Upload New Images:</h4>
+    <input asp-for="Image" type="file" accept="image/*" multiple>
+
+    <h4>Existing Images:</h4>
+    <div>
+        @if (ViewBag.ExistingImages != null)
+        {
+            foreach (var image in ViewBag.ExistingImages)
+            {
+                <div style="margin-bottom: 10px;">
+                    <img src="~/images/facilities/@image" width="120" style="margin-right: 10px;">
+
+                    <label>
+                        <input type="checkbox" name="DeleteImages" value="@image"> Delete
+                    </label>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No images available.</p>
+        }
+    </div>
+
+    <section>
+        <button>Submit</button>
+        <button type="reset">Reset</button>
+    </section>
+</form>

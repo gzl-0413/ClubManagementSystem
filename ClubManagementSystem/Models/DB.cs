@@ -1,0 +1,171 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
+
+namespace ClubManagementSystem.Models;
+#nullable disable warnings
+public class DB : DbContext
+{
+    public DB(DbContextOptions<DB> options) : base(options) { }
+
+    // DbSet
+    public DbSet<Facility> Facility { get; set; }
+    public DbSet<FacilityCategories> FacilityCategories { get; set; }
+    public DbSet<FacTimeSlot> FacTimeSlot { get; set; }
+    public DbSet<FacBooking> FacBooking { get; set; }
+    public DbSet<Event> Event { get; set; }
+    public DbSet<EventCategories> EventCategories { get; set; }
+    public DbSet<EventPricing> EventPricing { get; set; }
+}
+
+// Entity Classes----------------------------------------------------------
+
+#nullable disable warnings
+
+// Facility Module---------------------------------------------------------
+
+// Facility
+public class Facility
+{
+    // Column
+    [Key]
+    public int Id { get; set; }
+    [Required(ErrorMessage = "Facility Name is required.")]
+    [MaxLength(100, ErrorMessage = "Facility Name cannot exceed 100 characters.")]
+    public string Name { get; set; }
+    public string? Image { get; set; }
+    [Range(0, int.MaxValue, ErrorMessage = "Capacity must be a positive number.")]
+    public int? Capacity { get; set; }
+    [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
+    public string? Description { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
+
+    // FK
+    public int FacilityCategoriesId { get; set; }
+
+    // Navigation
+    public FacilityCategories FacilityCategories { get; set; }
+    public List<FacTimeSlot> FacTimeSlot { get; set; } = [];
+
+
+}
+
+// Categories---------------------------------------------------------------
+public class FacilityCategories
+{
+    // Column
+    [Key]
+    public int Id { get; set; }
+    [Required(ErrorMessage = "Category Name is required.")]
+    [MaxLength(100, ErrorMessage = "Category Name cannot exceed 100 characters.")]
+    public string FacCategoryName { get; set; }
+    [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
+    public string? Description { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
+    public int FacilityCount { get; set; }
+
+    // Navigation
+    public List<Facility> Facility { get; set; } = []; 
+}
+
+// Time Slot----------------------------------------------------------------
+public class FacTimeSlot
+{
+    // Column
+    [Key]
+    public int Id { get; set; }
+    public DateOnly Date { get; set; }
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly EndTime { get; set; }  
+    public decimal Price { get; set; }
+    public string Status { get; set; }
+    public string Remarks { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
+
+    // FK
+    [Required]
+    public int FacilityId { get; set; }
+
+    //Navigation
+    public Facility Facility { get; set; }
+    public List<FacBooking> FacBooking { get; set; } = [];
+}
+
+// Booking------------------------------------------------------------------
+public class FacBooking
+{
+    //Column
+    [Key]
+    public int Id { get; set; }
+    public DateOnly BookingDate { get; set; }
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly EndTime { get; set; }
+    public decimal FeePaid { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; }
+    public DateTime? ModifiedAt { get;set; }
+
+    // FK
+    public int FacTimeSlotId { get; set; }
+
+    // Navigation
+    public FacTimeSlot FacTimeSlot { get; set; }
+}
+
+// Event Management Module---------------------------------------------------------------
+// Event---------------------------------------------------------------------
+public class Event
+{
+    // Column
+    [Key]
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string? Image { get; set; }
+    public string? Venue { get; set; }
+    public string? Description { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly EndTime { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
+
+    // FK
+    public int EventCategoryId { get; set; }
+
+    // Navigation
+    public List<EventPricing> EventPricing { get; set; } = [];
+    public EventCategories EventCategory { get; set; }
+}
+
+// Event Categories------------------------------------------------------------
+public class EventCategories
+{
+    // Column
+    [Key]
+    public int Id { get; set; }
+    public string Name { get; set; }
+
+    // Navigation
+    public List<Event> Event { get; set; } = [];
+}
+
+// Event Pricing
+public class EventPricing
+{
+    [Key]
+    public int Id { get; set; }
+    public string Tier { get; set; } 
+    public decimal Price { get; set; }
+
+    // FK
+    public int EventId { get; set; }
+
+    // Navigation
+    public Event Event { get; set; }
+}
+

@@ -1,0 +1,58 @@
+﻿@model List<ClubManagementSystem.Models.FacilityCategoryViewModel>
+
+@{
+    ViewBag.Title = "Facility Categories";
+}
+
+<!-- Create Facility Category Button -->
+<a href="/FacilityCategories/CreateFacilityCategory">Create New Facility Category</a>
+
+<form method="post" action="/FacilityCategories/DeleteManyFacilityCategories" id="f"></form>
+
+<p>
+    <button data-check="ids">Check All</button>
+    <button data-uncheck="ids">Uncheck All</button>
+    <button form="f">Delete Checked</button>
+</p>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Description</th>
+            <th>Created At</th>
+            <th>Modified At</th>
+            <th>Facility Count</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr data-checkable>
+                <td>
+                    <input type="checkbox" name="ids" form="f" value="@category.Id" />
+                </td>
+                <td>@category.Id</td>
+                <td>@category.FacCategoryName</td>
+                <td>@category.Description</td>
+                <td>@category.CreatedAt.ToShortDateString()</td>
+                <td>@category.ModifiedAt?.ToShortDateString()</td>
+                <td>@category.FacilityCount</td>
+                <td>
+                    <button data-get="/FacilityCategories/UpdateFacilityCategories/@category.Id">Update</button>
+                    <button data-post="/FacilityCategories/DeleteFacilityCategories/@category.Id">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

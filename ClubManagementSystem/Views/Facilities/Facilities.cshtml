@@ -1,0 +1,67 @@
+﻿@model List<ClubManagementSystem.Models.FacilityViewModel>
+
+@{
+    ViewBag.Title = "Facilities";
+}
+
+<!-- Create Facility Button -->
+<a href="/Facilities/CreateFacility">Create New Facility</a>
+
+<form method="post" action="/Facilities/DeleteManyFacilities" id="f"></form>
+
+<p>
+    <button data-check="ids">Check All</button>
+    <button data-uncheck="ids">Uncheck All</button>
+    <button form="f">Delete Checked</button>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Image</th>
+            <th>Capacity</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Is Active</th>
+            <th>Created At</th>
+            <th>Modified At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var facility in Model)
+        {
+            <tr data-checkable>
+                <td>
+                    <input type="checkbox" name="ids" form="f" value="@facility.Id" />
+                </td>
+                <td>@facility.Id</td>
+                <td>@facility.Name</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(facility.Image))
+                    {
+                        <span>@facility.Image</span>
+                    }
+                    else
+                    {
+                        <span>No Image</span>
+                    }
+                </td>
+                <td>@facility.Capacity</td>
+                <td>@facility.Description</td>
+                <td>@facility.FacilityCategoriesId</td>
+                <td>@facility.IsActive</td>
+                <td>@facility.CreatedAt</td>
+                <td>@facility.ModifiedAt</td>
+                <td>
+                    <button data-get="/Facilities/Details/@facility.Id">Details</button>
+                    <button data-get="/Facilities/UpdateFacilities/@facility.Id">Update</button>
+                    <button data-post="/Facilities/DeleteFacilities/@facility.Id">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

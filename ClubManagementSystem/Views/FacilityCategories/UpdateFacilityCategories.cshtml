@@ -1,0 +1,26 @@
+﻿@model ClubManagementSystem.Models.FacilityCategories
+
+@{
+    ViewBag.Title = "Update Facility Categories";
+}
+
+<form method="post" class="form">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Id"></label>
+    <b>@Model?.Id</b>
+    <br>
+
+    <label asp-for="FacCategoryName"></label>
+    <input asp-for="FacCategoryName" data-upper data-trim>
+    <span asp-validation-for="FacCategoryName"></span>
+
+    <label asp-for="Description"></label>
+    <input asp-for="Description" data-upper data-trim>
+    <span asp-validation-for="Description"></span>
+
+    <section>
+        <button>Submit</button>
+        <button type="reset">Reset</button>
+    </section>
+</form>
