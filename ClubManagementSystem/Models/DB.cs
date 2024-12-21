@@ -16,6 +16,10 @@ public class DB : DbContext
     public DbSet<Event> Event { get; set; }
     public DbSet<EventCategories> EventCategories { get; set; }
     public DbSet<EventPricing> EventPricing { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Admin> Admins { get; set; }
+    public DbSet<Staff> Staffs { get; set; }
+    public DbSet<Member> Members { get; set; }
 }
 
 // Entity Classes----------------------------------------------------------
@@ -169,3 +173,46 @@ public class EventPricing
     public Event Event { get; set; }
 }
 
+public abstract class User
+{
+    [Key, Required, MaxLength(100)]
+    [EmailAddress]
+    public string Email { get; set; }
+
+    [Required, MaxLength(255)]
+    public string Hash { get; set; }
+
+    [Required, MaxLength(100)]
+    public string Name { get; set; }
+
+    public string Role => GetType().Name;
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; }
+    public DateTime? ModifiedAt { get; set; }
+    public string ModifiedBy { get; set; }
+}
+
+
+public class Admin : User
+{
+    // Additional properties for Admin, if any
+}
+
+public class Staff : User
+{
+    [Required]
+    [MaxLength(255)]
+    public string Password { get; set; }
+
+    [MaxLength(255)]
+    public string PhotoURL { get; set; }
+
+    // Additional properties for Staff, if any
+}
+
+
+public class Member : User
+{
+    [MaxLength(255)]
+    public string PhotoURL { get; set; }
+}

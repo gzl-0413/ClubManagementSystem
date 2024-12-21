@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject DB db
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -15,6 +16,21 @@
 
     <header>
         <h1><a href="/">Club Management System</a></h1>
+
+        @if (User.Identity!.IsAuthenticated)
+        {
+            <div>
+                @User.Identity.Name |
+                @(User.IsInRole("Admin") ? "Admin" : "")
+                @(User.IsInRole("Member") ? "Member" : "")
+            </div>
+        }
+
+        @if (User.IsInRole("Member"))
+        {
+            var photoURL = db.Members.Find(User.Identity!.Name)!.PhotoURL;
+            <img src="/photos/@photoURL">
+        }
     </header>
 
     <nav>
@@ -22,6 +38,22 @@
         <a href="/FacilityCategories/FacilityCategories">Facility Categories</a>
         <a href="/Facilities/Facilities">Facilities</a>
         <div></div>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a href="/Account/Logout">Logout</a>
+            <a href="/Account/UpdatePassword">Update Password</a>
+        }
+        else
+        {
+            <a href="/Account/Login">Login</a>
+            <a href="/Account/Register">Register</a>
+            <a href="/Account/ResetPassword">Reset Password</a>
+        }
+        @if (User.IsInRole("Member"))
+        {
+            <a href="/Account/UpdateProfile">Update Profile</a>
+        }
     </nav>
 
     <main>

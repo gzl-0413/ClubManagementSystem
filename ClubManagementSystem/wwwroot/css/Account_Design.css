@@ -1,0 +1,165 @@
+﻿/* General Form Styles */
+.form-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+    .form-container h2 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.input-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+    .input-field:focus {
+        border-color: #007BFF;
+        outline: none;
+    }
+
+.error-message {
+    font-size: 12px;
+    color: red;
+}
+
+/* Photo Upload Styles */
+/* Photo Upload Styles */
+.upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #333;
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 10px; /* Optional, for rounded corners */
+    position: relative;
+}
+
+    .upload small {
+        position: absolute;
+        color: #666;
+        font-size: 14px;
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .upload input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width .upload input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+.photo-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: 10px;
+    border: 2px solid #ddd;
+}
+
+/* Buttons */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.submit-btn, .reset-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.submit-btn {
+    background-color: #007BFF;
+    color: white;
+}
+
+    .submit-btn:hover {
+        background-color: #0056b3;
+    }
+
+.reset-btn {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+    .reset-btn:hover {
+        background-color: #ddd;
+    }
+
+/* Validation Summary */
+.validation-summary {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Specific Form Modifications */
+
+/* Reset Password Form */
+.reset-password-container {
+    /* Unique styles for reset password form, if any */
+    background-color: #f2f8ff;
+}
+
+    .reset-password-container h2 {
+        color: #0066cc;
+    }
+
+/* Update Profile Form */
+.update-profile-container {
+    /* Unique styles for updating profile */
+
+}
+
+    .update-profile-container h2 {
+        color: #4CAF50;
+    }
+
+/* Update Password Form */
+.update-password-container {
+    /* Unique styles for updating password */
+    background-color: #fff3e0;
+}
+
+    .update-password-container h2 {
+        color: #ff9800;
+    }
