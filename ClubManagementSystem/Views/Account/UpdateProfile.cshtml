@@ -1,0 +1,72 @@
+﻿@model UpdateProfileVM
+
+@{
+    Layout = null;
+    ViewBag.Title = "Account | Update Profile";
+}
+
+<head>
+    <link rel="stylesheet" href="/css/Account_Design.css">
+</head>
+
+<div class="form-container update-profile-container">
+    <form class="form" method="post" enctype="multipart/form-data">
+        <h2>Update Profile</h2>
+
+        <!-- Validation Summary -->
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+        <!-- Email Field (Read-Only) -->
+        <div class="form-group">
+            <label asp-for="Email" class="input-label">Email</label>
+            <b class="readonly-field">@Model.Email</b>
+        </div>
+
+        <!-- Full Name Field -->
+        <div class="form-group">
+            <label asp-for="Name" class="input-label">Full Name</label>
+            <input asp-for="Name" class="input-field" type="text" placeholder="Enter your full name" autofocus>
+            <span asp-validation-for="Name" class="error-message"></span>
+        </div>
+
+        <!-- Profile Photo Upload -->
+        <div class="form-group">
+            <label asp-for="Photo" class="input-label">Profile Photo</label>
+            <label class="upload">
+                <small>Select Photo...</small>
+                <input asp-for="Photo" accept="image/jpeg,image/png" hidden>
+                <img src="/photos/@Model.PhotoURL" class="photo-preview" alt="Profile Photo">
+            </label>
+            <span asp-validation-for="Photo" class="error-message"></span>
+        </div>
+
+        <!-- Buttons -->
+        <section class="form-actions">
+            <button type="submit" class="submit-btn">Update</button>
+            <button type="reset" class="reset-btn">Reset</button>
+            <a href="/Home/Index" class="back-btn">Back to Home</a>
+        </section>
+    </form>
+</div>
+<script>
+        document.querySelector('.upload input').addEventListener('change', function (event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+        const previewImage = fileInput.nextElementSibling;
+        const labelSmall = fileInput.previousElementSibling;
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                previewImage.src = e.target.result;
+                labelSmall.textContent = '';
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            previewImage.src = '/images/photo.jpg';
+            labelSmall.textContent = 'Select a photo...';
+        }
+    });
+</script>

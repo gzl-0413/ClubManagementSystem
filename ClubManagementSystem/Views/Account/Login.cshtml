@@ -1,0 +1,76 @@
+﻿@model LoginVM
+
+@{
+    Layout = null;
+
+    ViewBag.Title = "Account | Login";
+}
+<head>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<div class="screen-1">
+    <svg class="logo"
+         xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         version="1.1"
+         width="300"
+         height="300"
+         viewBox="0 0 640 480"
+         xml:space="preserve">
+    <g transform="matrix(3.31 0 0 3.31 320.4 240.4)">
+    <circle style="fill: rgb(61, 71, 133);" cx="0" cy="0" r="40" />
+        </g>
+    <g transform="matrix(0.98 0 0 0.98 268.7 213.7)">
+    <circle style="fill: rgb(255, 255, 255);" cx="0" cy="0" r="40" />
+        </g>
+    <g transform="matrix(1.01 0 0 1.01 362.9 210.9)">
+    <circle style="fill: rgb(255, 255, 255);" cx="0" cy="0" r="40" />
+        </g>
+    <g transform="matrix(0.92 0 0 0.92 318.5 286.5)">
+    <circle style="fill: rgb(255, 255, 255);" cx="0" cy="0" r="40" />
+        </g>
+    <g transform="matrix(0.16 -0.12 0.49 0.66 290.57 243.57)">
+    <polygon style="fill: rgb(255, 255, 255);" points="-50,-50 -50,50 50,50 50,-50" />
+        </g>
+    <g transform="matrix(0.16 0.1 -0.44 0.69 342.03 248.34)">
+    <polygon style="fill: rgb(255, 255, 255);" points="-50,-50 -50,50 50,50 50,-50" />
+        </g>
+    </svg>
+
+    <form class="form" method="post">
+        <div asp-validation-summary="ModelOnly"></div>
+
+        <div class="email">
+            <label asp-for="Email">Email Address</label>
+            <div class="sec-2">
+                <ion-icon name="mail-outline"></ion-icon>
+                <input asp-for="Email" type="email" name="email" placeholder="Username@gmail.com" required />
+            </div>
+            <span asp-validation-for="Email"></span>
+        </div>
+
+        <div class="password">
+            <label asp-for="Password">Password</label>
+            <div class="sec-2">
+                <ion-icon name="lock-closed-outline"></ion-icon>
+                <input asp-for="Password" type="password" class="pas" placeholder="············" required />
+                <ion-icon class="show-hide" name="eye-outline"></ion-icon>
+            </div>
+            <span asp-validation-for="Password"></span>
+        </div>
+
+        <div class="remember">
+            <label>
+                <input asp-for="RememberMe"> Remember Me
+            </label>
+        </div>
+
+        <button class="login" type="submit">Login</button>
+        <button type="reset">Reset</button>
+    </form>
+
+    <div class="footer">
+        <span><a href="/Account/Register">Sign up</a></span>
+        <span><a href="/Account/ResetPassword">Forgot Password?</a></span>
+    </div>
+</div>

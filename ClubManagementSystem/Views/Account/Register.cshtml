@@ -1,0 +1,100 @@
+﻿@model RegisterVM
+
+@{
+    Layout = null;
+    ViewBag.Title = "Account | Register";
+}
+<head>
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/Account_Design.css" asp-append-version="true">
+</head>
+<div class="form-container register-container">
+    <form class="form" method="post" enctype="multipart/form-data">
+        <h2>Register</h2>
+
+        <!-- Validation Summary -->
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+        <!-- Email Field -->
+        <div class="form-group">
+            <label asp-for="Email" class="input-label">Email Address</label>
+            <input asp-for="Email" class="input-field" type="email" placeholder="Enter your email" autofocus>
+            <span asp-validation-for="Email" class="error-message"></span>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+            <label asp-for="Password" class="input-label">Password</label>
+            <input asp-for="Password" class="input-field" type="password" placeholder="Create a password">
+            <span asp-validation-for="Password" class="error-message"></span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+            <label asp-for="Confirm" class="input-label">Confirm Password</label>
+            <input asp-for="Confirm" class="input-field" type="password" placeholder="Confirm your password">
+            <span asp-validation-for="Confirm" class="error-message"></span>
+        </div>
+
+        <!-- Name Field -->
+        <div class="form-group">
+            <label asp-for="Name" class="input-label">Full Name</label>
+            <input asp-for="Name" class="input-field" type="text" placeholder="Enter your full name">
+            <span asp-validation-for="Name" class="error-message"></span>
+        </div>
+
+        <!-- Photo Upload -->
+        <div class="form-group">
+            <label asp-for="Photo" class="input-label">Profile Photo</label>
+            <label class="upload">
+                <small>Select a photo...</small>
+                <input asp-for="Photo" accept="image/jpeg,image/png" hidden>
+                <img src="/images/photo.jpg" class="photo-preview">
+            </label>
+            <span asp-validation-for="Photo" class="error-message"></span>
+        </div>
+
+
+        <!-- Buttons -->
+        <section class="form-actions">
+            <button type="submit" class="submit-btn">Register</button>
+            <button type="reset" class="reset-btn">Reset</button>
+            <a href="/Account/Login" class="back-btn">Back to Login</a>
+        </section>
+    </form>
+</div>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.unobtrusive-ajax.min.js"></script>
+<script src="/js/jquery.validate.min.js"></script>
+<script src="/js/jquery.validate.unobtrusive.min.js"></script>
+<script src="/js/app.js" asp-append-version="true"></script>
+<script>
+        document.querySelector('.upload input').addEventListener('change', function (event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+        const previewImage = fileInput.nextElementSibling;
+        const labelSmall = fileInput.previousElementSibling;
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                previewImage.src = e.target.result;
+                labelSmall.textContent = '';
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            previewImage.src = '/images/photo.jpg';
+            labelSmall.textContent = 'Select a photo...';
+        }
+    });
+</script>
+
+@section foot {
+    <script>
+        $.validator.setDefaults({ ignore: '' });
+    </script>
+}
