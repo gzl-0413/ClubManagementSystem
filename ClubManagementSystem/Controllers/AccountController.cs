@@ -70,7 +70,7 @@ public class AccountController : Controller
 
         hp.SignOut();
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Login");
     }
 
     // GET: Account/AccessDenied
