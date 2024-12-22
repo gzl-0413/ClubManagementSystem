@@ -190,7 +190,12 @@ public abstract class User
     public string CreatedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
     public string ModifiedBy { get; set; }
+
+    // New fields for account activation
+    public bool IsActivated { get; set; } = false; // Default to false
+    public string ActivationCode { get; set; }
 }
+
 
 
 public class Admin : User

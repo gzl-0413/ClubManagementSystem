@@ -25,8 +25,6 @@ public class AccountController : Controller
 
     // POST: Account/Login
     [HttpPost]
-    // POST: Account/Login
-    [HttpPost]
     public IActionResult Login(LoginVM vm, string? returnURL)
     {
         var u = db.Users.Find(vm.Email);
@@ -35,6 +33,12 @@ public class AccountController : Controller
         if (u == null || !hp.VerifyPassword(u.Hash, vm.Password))
         {
             ModelState.AddModelError("", "Login credentials not matched.");
+        }
+
+        // Check if the account is activated
+        if (u != null && !u.IsActivated)
+        {
+            ModelState.AddModelError("", "Account is not activated. Please check your email.");
         }
 
         if (ModelState.IsValid)
@@ -61,6 +65,7 @@ public class AccountController : Controller
 
         return View(vm);
     }
+
 
 
     // GET: Account/Logout
@@ -117,20 +122,18 @@ public class AccountController : Controller
             }
         }
 
-        // Only proceed if the entire ModelState is valid
         if (ModelState.IsValid)
         {
             var now = DateTime.UtcNow;
             string? photoUrl = null;
 
-            // Save the photo only after all validations pass
             if (vm.Photo != null)
             {
                 photoUrl = hp.SavePhoto(vm.Photo, "photos");
             }
 
-            // Add the new member to the database
-            db.Members.Add(new()
+            var activationCode = Guid.NewGuid().ToString();
+            var newUser = new Member()
             {
                 Email = vm.Email,
                 Hash = hp.HashPassword(vm.Password),
@@ -140,18 +143,67 @@ public class AccountController : Controller
                 CreatedBy = "System",
                 ModifiedAt = now,
                 ModifiedBy = "System",
-            });
+                IsActivated = false,
+                ActivationCode = activationCode
+            };
 
+            db.Members.Add(newUser);
             db.SaveChanges();
 
-            TempData["Info"] = "Register successfully. Please login.";
+            // Send activation email
+            SendActivationEmail(newUser, activationCode);
+
+            TempData["Info"] = "Register successfully. Please check your email to activate your account.";
             return RedirectToAction("Login");
         }
 
-        // If there are validation errors, return to the form
         return View(vm);
     }
 
+
+    private void SendActivationEmail(Member member, string activationCode)
+    {
+        var mail = new MailMessage();
+        mail.To.Add(new MailAddress(member.Email, member.Name));
+        mail.Subject = "Account Activation";
+        mail.IsBodyHtml = true;
+
+        var activationLink = Url.Action("Activate", "Account", new { email = member.Email, code = activationCode }, protocol: "https");
+
+        mail.Body = $@"
+    <p>Dear {member.Name},</p>
+    <p>Thank you for registering! Please click the link below to activate your account:</p>
+    <p><a href='{activationLink}'>Activate your account</a></p>
+    <p>From, 🐱 Super Admin</p>
+";
+
+        hp.SendEmail(mail);
+    }
+
+    // GET: Account/Activate
+    public IActionResult Activate(string email, string code)
+    {
+        var u = db.Users.FirstOrDefault(u => u.Email == email && u.ActivationCode == code);
+
+        if (u == null)
+        {
+            TempData["Error"] = "Invalid activation link or account already activated.";
+            return RedirectToAction("Login");
+        }
+
+        u.IsActivated = true;
+        u.ActivationCode = GenerateActivationCode(); 
+
+        db.SaveChanges();
+
+        TempData["Info"] = "Account successfully activated. Please login.";
+        return RedirectToAction("Login");
+    }
+
+    private string GenerateActivationCode()
+    {
+        return Guid.NewGuid().ToString(); 
+    }
 
 
     // GET: Account/UpdatePassword
