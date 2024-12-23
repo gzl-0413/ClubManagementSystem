@@ -1,0 +1,279 @@
+﻿@model ClubManagementSystem.Models.Announcement
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Update Announcement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .announcement-form {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #007bff;
+            }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+            .btn:hover {
+                background-color: #0056b3;
+            }
+
+        .alert {
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: 4px;
+        }
+
+            .alert ul {
+                margin: 0;
+                padding: 0;
+                list-style-type: none;
+            }
+
+            .alert li {
+                margin: 5px 0;
+            }
+
+        #PostLaterFields {
+            margin-top: 15px;
+        }
+
+        .existing-photos ul, .photo-preview ul {
+            list-style-type: none; /* Remove bullet points */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+        }
+
+        .existing-photos li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .existing-photos img, .photo-preview img {
+            margin-right: 10px; /* Add space between the image and the text */
+        }
+    </style>
+</head>
+<body>
+    <h2>Update Announcement</h2>
+
+    <form asp-action="AnnUpdate" asp-controller="Announcement" method="post" enctype="multipart/form-data" class="announcement-form">
+        <div class="form-group">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Content" class="form-label"></label>
+            <textarea asp-for="Content" class="form-control"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Upload Photos (Max 3)</label>
+            <input type="file" name="Photos" class="form-control" multiple id="PhotosInput" />
+
+            <!-- Display selected photos as a preview -->
+            <div class="photo-preview" id="photoPreview" style="display:none;">
+                <p>Selected Photos:</p>
+                <ul id="selectedPhotosList">
+                    <!-- Dynamically generated list of selected photos will appear here -->
+                </ul>
+            </div>
+
+            <!-- Display existing photos if any -->
+            @if (ViewBag.ExistingPhotos != null && ViewBag.ExistingPhotos.Count > 0)
+            {
+                <div class="existing-photos">
+                    <p>Existing Photos:</p>
+                    <ul>
+                        @foreach (var photo in ViewBag.ExistingPhotos)
+                        {
+                            <li>
+                                <img src="@Url.Content("~/photos/" + photo)" alt="Photo" width="100" />
+                                <span>@photo</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+
+        <!-- Choose Post Time (Radio buttons for Post Now or Post Later) -->
+        <div class="form-group">
+            <label class="form-label">Choose Post Time</label>
+            <div>
+                <label>
+                    <input type="radio" name="PostTime" value="PostNow" id="PostNow" @(Model.Status == "Blocked" ? "checked" : "") />
+                    Post Now
+                </label>
+                <label>
+                    <input type="radio" name="PostTime" value="PostLater" id="PostLater" @(Model.Status == "Pending" ? "checked" : "") />
+                    Post Later
+                </label>
+            </div>
+        </div>
+
+        <!-- Post Later Date and Time -->
+        <div class="form-group" id="PostLaterFields" style="display:@(Model.Status == "Pending" ? "block" : "none")">
+            <label for="PostDate" class="form-label">Select Date and Time</label>
+            <input type="datetime-local" name="PostDate" class="form-control" value="@Model.DateTime.ToString("yyyy-MM-ddTHH:mm")" />
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary">Update</button>
+
+        <!-- Cancel Button -->
+        <button type="button" class="btn btn-secondary" id="cancelButton">Cancel</button>
+    </form>
+
+    @if (Model.Status == "Posted")
+    {
+        <script>
+            alert("This announcement has already been posted and cannot be updated.");
+            window.location.href = '@Url.Action("AnnList", "Announcement")';
+        </script>
+    }
+
+    <script>
+        // Disable calendar with date earlier than today
+        document.addEventListener("DOMContentLoaded", function () {
+            var currentDate = new Date();
+            var year = currentDate.getFullYear();
+            var month = ("0" + (currentDate.getMonth() + 1)).slice(-2); // Add leading zero for month
+            var day = ("0" + currentDate.getDate()).slice(-2); // Add leading zero for day
+            var hours = "00"; // Midnight for the start of the day
+            var minutes = "00"; // 00 minutes
+            var minDateTime = year + "-" + month + "-" + day + "T" + hours + ":" + minutes;
+
+            // Get the input field for PostDate and set the min attribute
+            var postDateInput = document.querySelector('input[name="PostDate"]');
+            if (postDateInput) {
+                postDateInput.setAttribute("min", minDateTime);
+            }
+        });
+
+        // Toggle the visibility of date-time picker based on 'Post Now' or 'Post Later' radio button
+        document.querySelectorAll('input[name="PostTime"]').forEach(radio => {
+            radio.addEventListener("change", function () {
+                var postLaterFields = document.getElementById("PostLaterFields");
+                if (document.getElementById("PostLater").checked) {
+                    postLaterFields.style.display = "block";
+                } else {
+                    postLaterFields.style.display = "none";
+                }
+            });
+        });
+
+        // Confirm cancellation and navigate to AnnList if confirmed
+        document.getElementById("cancelButton").addEventListener("click", function () {
+            var userConfirmed = confirm("Are you sure you want to cancel? All unsaved changes will be lost.");
+            if (userConfirmed) {
+                window.location.href = '@Url.Action("AnnList", "Announcement")';  // Redirect to AnnList
+            }
+        });
+
+        // Validate number of selected files (Max 3)
+        document.getElementById("PhotosInput").addEventListener("change", function () {
+            var files = this.files;
+            if (files.length > 3) {
+                alert("You can only upload a maximum of 3 photos.");
+                this.value = "";  // Clear the selected files
+            }
+        });
+
+        // Show a preview of the selected photos
+        document.getElementById("PhotosInput").addEventListener("change", function () {
+            var files = this.files;
+            var previewContainer = document.getElementById("photoPreview");
+            var selectedPhotosList = document.getElementById("selectedPhotosList");
+
+            // Clear the existing preview
+            selectedPhotosList.innerHTML = "";
+
+            if (files.length > 0) {
+                // Show the preview container
+                previewContainer.style.display = "block";
+
+                // Loop through the selected files and display them
+                Array.from(files).forEach(function (file) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var listItem = document.createElement("li");
+                        listItem.innerHTML = `<img src="${e.target.result}" alt="Preview" width="100" /> <span>${file.name}</span>`;
+                        selectedPhotosList.appendChild(listItem);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                previewContainer.style.display = "none";  // Hide the preview if no files are selected
+            }
+
+            // Validate number of selected files (Max 3)
+            if (files.length > 3) {
+                alert("You can only upload a maximum of 3 photos.");
+                this.value = "";  // Clear the selected files
+                previewContainer.style.display = "none";  // Hide the preview
+            }
+        });
+
+    </script>
+</body>
+</html>

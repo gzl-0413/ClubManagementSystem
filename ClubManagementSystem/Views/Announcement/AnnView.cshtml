@@ -1,0 +1,250 @@
+﻿@model IEnumerable<AnnouncementViewModel>
+
+@{
+    ViewBag.Title = "Club Announcements";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Announcements</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .announcement-list {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .announcement-box {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+        }
+
+        .announcement-header {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .admin-profile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .admin-info {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .announcement-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .announcement-content {
+            font-size: 1.2em;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .announcement-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+
+            .announcement-images img {
+                width: 100%;
+                height: auto;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+        /* Icon button container */
+        .icon-buttons {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+            /* Like button styles */
+            .icon-buttons button.like {
+                background-color: transparent;
+                border: none;
+                color: #555;
+                font-size: 1.2em;
+                cursor: pointer;
+                transition: color 0.3s, transform 0.2s;
+            }
+
+                .icon-buttons button.like:hover {
+                    color: #dc3545; /* Red color on hover */
+                    transform: scale(1.1);
+                }
+
+                .icon-buttons button.like.liked {
+                    color: #dc3545; /* Red color when liked */
+                }
+
+            /* Share button styles */
+            .icon-buttons button.share {
+                background-color: transparent;
+                border: none;
+                color: #555;
+                font-size: 1.2em;
+                cursor: pointer;
+                transition: color 0.3s, transform 0.2s;
+            }
+
+                .icon-buttons button.share:hover {
+                    color: #007bff; /* Blue color on hover */
+                    transform: scale(1.1);
+                }
+
+                .icon-buttons button.share.liked {
+                    color: #007bff; /* Blue color when clicked */
+                }
+
+        .no-announcements {
+            text-align: center;
+            font-size: 1.5em;
+            color: #777;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        @if (!Model.Any())
+        {
+            <div class="no-announcements">No announcements to display at this time.</div>
+        }
+        else
+        {
+            <div class="announcement-list">
+                @foreach (var announcement in Model)
+                {
+                    <div class="announcement-box">
+                        <div class="announcement-header">
+                            <div class="admin-info">
+                                <div>@announcement.AdminName</div>
+                                <small>Posted on @announcement.DateTime.ToString("MMMM dd, yyyy - hh:mm tt")</small>
+                            </div>
+                        </div>
+
+                        <div class="announcement-title">
+                            @announcement.Title
+                        </div>
+
+                        <div class="announcement-content">
+                            @announcement.Content
+                        </div>
+
+                        <div class="announcement-images">
+                            @foreach (var photo in announcement.Photo.Split(','))
+                            {
+                                <img src="@Url.Content($"~/photos/{photo.Trim()}")" alt="Announcement Image" />
+                            }
+                        </div>
+
+                        <div class="icon-buttons">
+                            <button onclick="toggleLike(this, '@announcement.Id')" class="like @((announcement.IsLikedByCurrentUser) ? "liked" : "")">
+                                <i class="fa fa-heart"></i>
+                                <span class="like-count">Like (@announcement.LikeCount)</span>
+                            </button>
+
+
+
+                            <button onclick="shareAnnouncement('@announcement.Id')" class="share">
+                                <i class="fa fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
+    <script>
+        function toggleLike(button, announcementId) {
+            $.ajax({
+                url: '@Url.Action("LikeAnn", "Announcement")', // URL to your action
+                type: 'POST',
+                data: { announcementId: announcementId },
+                success: function (response) {
+                    if (response.success) {
+                        // Toggle the "liked" class to change the heart color
+                        button.classList.toggle("liked");
+
+                        // Update the like count in the button
+                        const likeCountElement = button.querySelector('span.like-count');
+                        if (likeCountElement) {
+                            likeCountElement.textContent = `Like (${response.likeCount})`;
+                        }
+                    }
+                },
+                error: function (error) {
+                    console.error("Error liking the post: ", error);
+                }
+            });
+        }
+
+
+        function shareAnnouncement(announcementId) {
+            const currentUrl = window.location.href.split('#')[0]; // Base URL without hash
+            const shareUrl = `${currentUrl}#announcement-${announcementId}`;
+
+            navigator.clipboard.writeText(shareUrl)
+                .then(() => {
+                    alert('Link copied to clipboard: ' + shareUrl);
+                })
+                .catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+        }
+    </script>
+</body>
+</html>

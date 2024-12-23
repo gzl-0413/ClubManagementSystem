@@ -20,6 +20,8 @@ public class DB : DbContext
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<Member> Members { get; set; }
+
+    public DbSet<Announcement> Announcements { get; set; }
 }
 
 // Entity Classes----------------------------------------------------------
@@ -221,3 +223,32 @@ public class Member : User
     [MaxLength(255)]
     public string PhotoURL { get; set; }
 }
+
+public class Announcement
+{
+    [Key]
+    public string Id { get; set; }
+
+    [Required, MaxLength(300)]
+    public string Title { get; set; }
+
+    [Required, MaxLength(1000)]
+    public string Content { get; set; }
+
+    [Required, MaxLength(300)]
+    public string Photo { get; set; } = string.Empty;
+
+    [Required]
+    public DateTime DateTime { get; set; }
+
+    [Required]
+    public string Status { get; set; } // Posted, Pending, Error
+
+    public string LikeUsers { get; set; } = string.Empty;
+
+    //FK
+    public string AdminEmail { get; set; }
+}
+
+
+
