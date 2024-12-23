@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
     <link rel="stylesheet" href="/css/pager.css">
     <link rel="stylesheet" href="/css/app.css" asp-append-version="true">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet">
     @RenderSection("head", false)
+    @RenderSection("Styles", false)
 </head>
 <body>
     <div class="info">@Html.Raw(TempData["Info"])</div>
@@ -37,6 +39,8 @@
         <a href="/Home/Index">Index</a>
         <a href="/FacilityCategories/FacilityCategories">Facility Categories</a>
         <a href="/Facilities/Facilities">Facilities</a>
+        <a href="/Admin/AdminPage">Admin</a>
+        <a href="/Admin/MemberPage">Member</a>
         <div></div>
 
         @if (User.Identity.IsAuthenticated)
@@ -70,6 +74,7 @@
     <script src="/js/jquery.validate.min.js"></script>
     <script src="/js/jquery.validate.unobtrusive.min.js"></script>
     <script src="/js/app.js" asp-append-version="true"></script>
-    @RenderSection("foot", false)
+
+    @RenderSection("Scripts", false)
 </body>
 </html>
