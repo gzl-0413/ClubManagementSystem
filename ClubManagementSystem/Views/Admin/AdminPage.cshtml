@@ -1,0 +1,180 @@
+﻿@model IPagedList<ClubManagementSystem.Models.Admin>
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@{
+    Layout = "_Layout";
+    ViewBag.Title = "Admin Management Page";
+}
+
+<style>
+    body, table, th, td {
+        color: black !important; /* Set text color to black */
+    }
+
+    th {
+        color: black !important; /* Ensure the table headers are black */
+    }
+</style>
+
+<div class="container mt-4">
+
+    <!-- TempData Alerts -->
+    @if (TempData["Info"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["Info"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <p class="mb-4">Manage the details of all admins here. You can add, edit, or delete admin accounts.</p>
+
+    <!-- Search Input -->
+    <div class="d-flex mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search by name or email" onkeyup="searchAdmins()" />
+    </div>
+
+    <!-- Add New Admin Button -->
+    <div class="mt-3">
+        <a asp-action="AdminCreate" class="btn btn-success">Add New Admin</a>
+    </div><br />
+
+    <!-- Sorting Dropdowns -->
+    <div class="d-flex mb-3">
+        <select id="sort" class="form-select ms-2" onchange="sortAdmins()">
+            <option value="Email">Email</option>
+            <option value="Name">Name</option>
+            <option value="CreatedAt">Created At</option>
+        </select>
+
+        <select id="dir" class="form-select ms-2" onchange="sortAdmins()">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+    </div>
+
+    <!-- Admin List Table -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Admin List</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-bordered" id="adminTable">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var admin in Model)
+                    {
+                        <tr class="adminRow">
+                            <td>@admin.Email</td>
+                            <td>@admin.Name</td>
+                            <td>@admin.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>
+                                <!-- Edit Button -->
+                                <a asp-action="AdminEdit" asp-route-email="@admin.Email" class="btn btn-primary btn-sm">Edit</a>
+
+                                <!-- Delete Form -->
+                                <form asp-action="DeleteAdmin" method="post" style="display:inline;">
+                                    <input type="hidden" name="email" value="@admin.Email" />
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this admin?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-3">
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.PageCount; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("AdminPage", new { name = ViewBag.Name, sort = ViewBag.Sort, dir = ViewBag.Dir, page = i })">@i</a>
+                </li>
+            }
+        </ul>
+    </div>
+
+</div>
+
+<!-- Bootstrap JS for Alerts -->
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Search function for admins
+        function searchAdmins() {
+            var input = document.getElementById('searchInput').value.toLowerCase();
+            var table = document.getElementById('adminTable');
+            var rows = table.getElementsByClassName('adminRow');
+
+            for (var i = 0; i < rows.length; i++) {
+                var email = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+                var name = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+
+                if (email.includes(input) || name.includes(input)) {
+                    rows[i].style.display = ''; // Show row
+                } else {
+                    rows[i].style.display = 'none'; // Hide row
+                }
+            }
+        }
+
+        // Sorting function for admins (client-side sorting)
+        function sortAdmins() {
+            var sort = document.getElementById('sort').value;
+            var dir = document.getElementById('dir').value;
+
+            var table = document.getElementById('adminTable');
+            var rows = Array.from(table.getElementsByClassName('adminRow'));
+
+            rows.sort(function(a, b) {
+                var cellA = a.getElementsByTagName('td')[getColumnIndex(sort)].textContent;
+                var cellB = b.getElementsByTagName('td')[getColumnIndex(sort)].textContent;
+
+                if (sort === 'CreatedAt') {
+                    // Convert string dates to Date objects for comparison
+                    cellA = new Date(cellA);
+                    cellB = new Date(cellB);
+                }
+
+                if (dir === 'asc') {
+                    return cellA > cellB ? 1 : (cellA < cellB ? -1 : 0);
+                } else {
+                    return cellA < cellB ? 1 : (cellA > cellB ? -1 : 0);
+                }
+            });
+
+            // Re-render rows
+            rows.forEach(row => table.appendChild(row));
+        }
+
+        // Helper function to get the column index based on selected sorting option
+        function getColumnIndex(sort) {
+            switch (sort) {
+                case 'Email': return 0;
+                case 'Name': return 1;
+                case 'CreatedAt': return 2;
+                default: return 0;
+            }
+        }
+    </script>
+}

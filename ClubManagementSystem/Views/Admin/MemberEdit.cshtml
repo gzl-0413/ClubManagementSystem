@@ -1,0 +1,66 @@
+﻿@model ClubManagementSystem.Models.EditMemberVM
+
+@{
+    Layout = "_Layout";
+    ViewBag.Title = "Edit Member Profile";
+}
+
+<div class="container mt-4">
+
+    <!-- TempData Alerts -->
+    @if (TempData["Info"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["Info"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <h3>Edit Member Profile</h3>
+
+    <form method="post">
+        <!-- Hidden Email Field -->
+        <input type="hidden" name="Email" value="@Model.Email" />
+
+        <!-- Full Name -->
+        <div class="mb-3">
+            <label for="Name" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="Name" name="Name" value="@Model.Name" placeholder="Enter full name" required />
+        </div>
+
+        <!-- Account Status -->
+        <div class="mb-3">
+            <label for="IsActivated" class="form-label">Account Status</label>
+            <select id="IsActivated" name="IsActivated" class="form-select">
+                <option value="true">Activated</option>
+                <option value="false">Deactivated</option>
+            </select>
+        </div>
+
+        <script>
+            // Using JavaScript to set the selected option based on the model or query value
+            document.addEventListener('DOMContentLoaded', function () {
+                var isActivated = '@Context.Request.Query["isActivated"]';  // Get the value from query or model
+                var selectElement = document.getElementById('IsActivated');
+                for (var option of selectElement.options) {
+                    if (option.value === isActivated) {
+                        option.selected = true;
+                    }
+                }
+            });
+        </script>
+
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="@Url.Action("MemberPage", "Admin")" class="btn btn-secondary">Back to Member List</a>
+    </form>
+
+</div>
