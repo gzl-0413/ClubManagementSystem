@@ -18,11 +18,5 @@ var app = builder.Build();
 // Configure the HTTP request pipeline
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-// Configure default route to Login
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}"
-);
-
+app.MapDefaultControllerRoute();
 app.Run();
