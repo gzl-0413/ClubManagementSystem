@@ -27,10 +27,10 @@ namespace ClubManagementSystem.Controllers
                     Id = f.Id,
                     Name = f.Name,
                     Image = f.Image,
-                    Capacity = f.Capacity,
                     Description = f.Description,
                     IsActive = f.IsActive,
                     FacilityCategoriesId = f.FacilityCategoriesId,
+                    Price = f.Price,
                     CreatedAt = f.CreatedAt,
                     ModifiedAt = f.ModifiedAt,
                 })
@@ -93,10 +93,10 @@ namespace ClubManagementSystem.Controllers
                     var facility = new Facility
                     {
                         Name = vm.Name.Trim(),
-                        Capacity = vm.Capacity,
                         Description = vm.Description?.Trim(),
                         IsActive = vm.IsActive,
                         FacilityCategoriesId = vm.FacilityCategoriesId,
+                        Price = vm.Price,
                         Image = string.Join(",", uploadedImagePaths), // Store paths as comma-separated string
                         CreatedAt = DateTime.Now
                     };
@@ -135,8 +135,8 @@ namespace ClubManagementSystem.Controllers
                 Id = facility.Id,
                 Name = facility.Name,
                 Image = facility.Image,
-                Capacity = facility.Capacity,
                 Description = facility.Description,
+                Price = facility.Price,
                 IsActive = facility.IsActive,
                 FacilityCategoriesId = facility.FacilityCategoriesId
             };
@@ -165,8 +165,8 @@ namespace ClubManagementSystem.Controllers
 
                     // Update basic details
                     facility.Name = vm.Name.Trim();
-                    facility.Capacity = vm.Capacity;
                     facility.Description = vm.Description?.Trim();
+                    facility.Price = vm.Price;
                     facility.IsActive = vm.IsActive;
                     facility.FacilityCategoriesId = vm.FacilityCategoriesId;
                     facility.ModifiedAt = DateTime.Now;
@@ -323,6 +323,5 @@ namespace ClubManagementSystem.Controllers
             }
             return RedirectToAction("Facilities");
         }
-
     }
 }

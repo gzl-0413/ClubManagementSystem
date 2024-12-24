@@ -37,6 +37,8 @@
         <a href="/Home/Index">Index</a>
         <a href="/FacilityCategories/FacilityCategories">Facility Categories</a>
         <a href="/Facilities/Facilities">Facilities</a>
+        <a href="/FacilityBooking/CreateAdminBooking">Create Booking</a>
+        <a href="/FacilityBooking/CreateCoachBooking">Create Booking</a>
         <div></div>
 
         @if (User.Identity.IsAuthenticated)
@@ -71,5 +73,6 @@
     <script src="/js/jquery.validate.unobtrusive.min.js"></script>
     <script src="/js/app.js" asp-append-version="true"></script>
     @RenderSection("foot", false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

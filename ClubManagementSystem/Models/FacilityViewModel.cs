@@ -12,11 +12,10 @@ public class FacilityViewModel
     [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
     public string Name { get; set; }
     public string? Image { get; set; }
-    [Range(0, int.MaxValue, ErrorMessage = "Capacity must be a positive number.")]
-    public int? Capacity { get; set; }
     [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
-
     public string? Description { get; set; }
+    [Range(0, double.MaxValue, ErrorMessage = "Price must be a positive number.")]
+    public decimal Price { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ModifiedAt { get; set; }
@@ -24,30 +23,55 @@ public class FacilityViewModel
     // Related Data
     [Required(ErrorMessage = "Please select a facility category.")]
     public int FacilityCategoriesId { get; set; }
-    //public string FacilityCategoryName { get; set; }
-    //public FacilityCategories FacilityCategories { get; set; } // Facility Category Name
-    public List<TimeSlotViewModel> FacilityTimeSlots { get; set; } = new();
 }
 
-public class TimeSlotViewModel
+public class FacilityBookingViewModel
 {
     public int Id { get; set; }
-    public DateOnly Date { get; set; }
+
+    [Required(ErrorMessage = "Facility selection is required.")]
+    public int FacilityId { get; set; } // FK to Facility
+    [Required(ErrorMessage = "Booking name is required.")]
+    [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
+    public string Name { get; set; }
+
+    [Required(ErrorMessage = "Phone number is required.")]
+    [StringLength(11, ErrorMessage = "Phone number cannot exceed 11 characters.")]
+    public string PhoneNumber { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email format.")]
+    public string? Email { get; set; }
+
+    [Required(ErrorMessage = "Booking date is required.")]
+    public DateOnly BookingDate { get; set; }
+
+    [Required(ErrorMessage = "Start time is required.")]
     public TimeOnly StartTime { get; set; }
+
+    [Required(ErrorMessage = "End time is required.")]
+    [CustomValidation(typeof(TimeValidation), nameof(TimeValidation.ValidateTimeRange))]
     public TimeOnly EndTime { get; set; }
-    public decimal Price { get; set; }
-    public string Status { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "Fee paid must be a positive value.")]
+    public decimal FeePaid { get; set; }
+    public string PayBy {  get; set; }
 }
 
-public class FacilityScheduleViewModel
+public class FacilityBookingCapacityViewModel
 {
-    public int FacilityId { get; set; }
-    public string FacilityName { get; set; }
-    public DateOnly SelectedDate { get; set; }
-    public List<DateOnly> AvailableDates { get; set; } = [];
-    public List<TimeSlotViewModel> TimeSlots { get; set; } = [];
-}
+    public int Id { get; set; }
+    public int FacilityId { get; set; } 
+    public string FacilityName { get; set; } 
 
+    public DateOnly BookingDate { get; set; } 
+
+    public TimeOnly StartTime { get; set; } 
+
+    public TimeOnly EndTime { get; set; }
+
+    public int RemainingCapacity { get; set; } 
+
+}
 public class FacilityCategoryViewModel
 {
     public int Id { get; set; }
@@ -56,5 +80,19 @@ public class FacilityCategoryViewModel
     public DateTime CreatedAt { get; set; }
     public DateTime? ModifiedAt { get; set; }
     public int FacilityCount { get; set; } 
+}
+
+public static class TimeValidation
+{
+    public static ValidationResult ValidateTimeRange(TimeOnly endTime, ValidationContext context)
+    {
+        var instance = context.ObjectInstance as FacilityBookingViewModel;
+        if (instance != null && instance.StartTime >= endTime)
+        {
+            return new ValidationResult("End time must be later than start time.");
+        }
+
+        return ValidationResult.Success;
+    }
 }
 
