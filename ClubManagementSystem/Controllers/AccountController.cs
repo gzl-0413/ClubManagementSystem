@@ -51,7 +51,7 @@ public class AccountController : Controller
             // Redirect based on the role
             if (u.Role == "Admin")
             {
-                return RedirectToAction("AdminHome", "Admin");
+                return RedirectToAction("Index", "Home");
             }
 
             // If no specific role, use returnURL or default to Home/Index

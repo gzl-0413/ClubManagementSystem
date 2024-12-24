@@ -9,9 +9,9 @@ public class DB : DbContext
     public DB(DbContextOptions<DB> options) : base(options) { }
 
     // DbSet
+    public DbSet<FacilityBookingCapacity> FacilityBookingCapacity { get; set; } 
     public DbSet<Facility> Facility { get; set; }
     public DbSet<FacilityCategories> FacilityCategories { get; set; }
-    public DbSet<FacTimeSlot> FacTimeSlot { get; set; }
     public DbSet<FacBooking> FacBooking { get; set; }
     public DbSet<Event> Event { get; set; }
     public DbSet<EventCategories> EventCategories { get; set; }
@@ -30,6 +30,21 @@ public class DB : DbContext
 
 // Facility Module---------------------------------------------------------
 
+// Facility Booking Capacity
+public class FacilityBookingCapacity
+{
+    [Key]
+    public int Id { get; set; }
+    public int FacilityId { get; set; }
+    public DateOnly BookingDate { get; set; }
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly EndTime { get; set; }
+    public int RemainingCapacity { get; set; } 
+
+    // Navigation property
+    public Facility Facility { get; set; }
+}
+
 // Facility
 public class Facility
 {
@@ -40,9 +55,8 @@ public class Facility
     [MaxLength(100, ErrorMessage = "Facility Name cannot exceed 100 characters.")]
     public string Name { get; set; }
     public string? Image { get; set; }
-    [Range(0, int.MaxValue, ErrorMessage = "Capacity must be a positive number.")]
-    public int? Capacity { get; set; }
-    [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
+    [Range(0, double.MaxValue, ErrorMessage = "Price must be a positive number.")]
+    public decimal Price { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -53,9 +67,7 @@ public class Facility
 
     // Navigation
     public FacilityCategories FacilityCategories { get; set; }
-    public List<FacTimeSlot> FacTimeSlot { get; set; } = [];
-
-
+    public List<FacBooking> FacBookings { get; set; } = [];
 }
 
 // Categories---------------------------------------------------------------
@@ -77,49 +89,41 @@ public class FacilityCategories
     public List<Facility> Facility { get; set; } = []; 
 }
 
-// Time Slot----------------------------------------------------------------
-public class FacTimeSlot
+// Booking------------------------------------------------------------------
+public class FacBooking
 {
     // Column
     [Key]
     public int Id { get; set; }
-    public DateOnly Date { get; set; }
+    [Required(ErrorMessage = "Name is required.")]
+    [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
+    public string Name { get; set; }
+
+    [Required(ErrorMessage = "Phone number is required.")]
+    [StringLength(15, ErrorMessage = "Phone number cannot exceed 15 characters.")]
+    public string PhoneNumber { get; set; }
+    [EmailAddress(ErrorMessage = "Invalid email format.")]
+    public string? Email { get; set; }
+    [Required]
+    public DateOnly BookingDate { get; set; }
+    [Required]
     public TimeOnly StartTime { get; set; }
-    public TimeOnly EndTime { get; set; }  
-    public decimal Price { get; set; }
-    public string Status { get; set; }
-    public string Remarks { get; set; }
+    [Required]
+    public TimeOnly EndTime { get; set; }
+    [Range(0, double.MaxValue, ErrorMessage = "Fee paid must be a positive value.")]
+    public decimal? FeePaid { get; set; }
+    public bool isPaid { get; set; }
+    public string? PayBy { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
 
-    // FK
+    // Foreign Key: Link to Facility
     [Required]
     public int FacilityId { get; set; }
 
-    //Navigation
+    // Navigation Property
     public Facility Facility { get; set; }
-    public List<FacBooking> FacBooking { get; set; } = [];
-}
-
-// Booking------------------------------------------------------------------
-public class FacBooking
-{
-    //Column
-    [Key]
-    public int Id { get; set; }
-    public DateOnly BookingDate { get; set; }
-    public TimeOnly StartTime { get; set; }
-    public TimeOnly EndTime { get; set; }
-    public decimal FeePaid { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public string CreatedBy { get; set; }
-    public DateTime? ModifiedAt { get;set; }
-
-    // FK
-    public int FacTimeSlotId { get; set; }
-
-    // Navigation
-    public FacTimeSlot FacTimeSlot { get; set; }
 }
 
 // Event Management Module---------------------------------------------------------------

@@ -15,10 +15,6 @@
     <input asp-for="Name" data-trim>
     <span asp-validation-for="Name"></span>
 
-    <label asp-for="Capacity"></label>
-    <input asp-for="Capacity" type="number" min="0">
-    <span asp-validation-for="Capacity"></span>
-
     <label asp-for="Description"></label>
     <textarea asp-for="Description"></textarea>
     <span asp-validation-for="Description"></span>
@@ -26,6 +22,10 @@
     <label asp-for="IsActive"></label>
     <input asp-for="IsActive" type="checkbox">
     <span asp-validation-for="IsActive"></span>
+
+    <label asp-for="Price"></label>
+    <input asp-for="Price" data-trim>
+    <span asp-validation-for="Price"></span>
 
     <label asp-for="FacilityCategoriesId"></label>
     <select asp-for="FacilityCategoriesId" asp-items="ViewBag.FacilityCategories">
