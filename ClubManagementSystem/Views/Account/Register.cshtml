@@ -10,6 +10,28 @@
     <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/Account_Design.css" asp-append-version="true">
 </head>
+<style>
+    .strength-bar {
+        width: 100%;
+        height: 8px;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+
+    .strength-bar-fill {
+        height: 100%;
+        width: 0;
+        transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    }
+
+    .strength-text {
+        margin-top: 5px;
+        font-size: 0.9em;
+        font-weight: 600;
+    }
+</style>
 <div class="form-container register-container">
     <form class="form" method="post" enctype="multipart/form-data">
         <h2>Register</h2>
@@ -27,9 +49,19 @@
         <!-- Password Field -->
         <div class="form-group">
             <label asp-for="Password" class="input-label">Password</label>
-            <input asp-for="Password" class="input-field" type="password" placeholder="Create a password">
+            <input asp-for="Password" class="input-field" type="password" placeholder="Create a password" id="password">
             <span asp-validation-for="Password" class="error-message"></span>
+            <small class="info-message">
+                Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.
+            </small>
+
+            <!-- Strength Bar -->
+            <div class="strength-bar">
+                <div class="strength-bar-fill"></div>
+            </div>
+            <small id="strength-text" class="strength-text"></small>
         </div>
+
 
         <!-- Confirm Password -->
         <div class="form-group">
@@ -92,6 +124,62 @@
         }
     });
 </script>
+
+<script>
+    document.getElementById('password').addEventListener('input', function () {
+        const password = this.value;
+        const strengthBar = document.querySelector('.strength-bar-fill');
+        const strengthText = document.getElementById('strength-text');
+
+        let strength = 0;
+
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++; //uppercase letters
+        if (/[a-z]/.test(password)) strength++; //lowercase letters
+        if (/\d/.test(password)) strength++;    //digits
+        if (/[@@$!%*?&]/.test(password)) strength++; // special characters
+
+        let width = '0%';
+        let color = '#e0e0e0';
+        let text = '';
+
+        switch (strength) {
+            case 0:
+            case 1:
+                width = '20%';
+                color = '#ff4d4d'; 
+                text = 'Weak';
+                break;
+            case 2:
+                width = '40%';
+                color = '#ffae42'; 
+                text = 'Moderate';
+                break;
+            case 3:
+                width = '60%';
+                color = '#ffd700'; 
+                text = 'Good';
+                break;
+            case 4:
+                width = '80%';
+                color = '#90ee90';
+                text = 'Strong';
+                break;
+            case 5:
+                width = '100%';
+                color = '#32cd32';                                                                                                                          
+                text = 'Very Strong';
+                break;
+        }
+
+        // Apply updates
+        strengthBar.style.width = width;
+        strengthBar.style.backgroundColor = color;
+        strengthText.textContent = text;
+        strengthText.style.color = color;
+    });
+</script>
+
 
 @section foot {
     <script>
