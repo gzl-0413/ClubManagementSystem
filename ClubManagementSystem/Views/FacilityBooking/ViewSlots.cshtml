@@ -1,0 +1,109 @@
+﻿@model FacilityAvailabilityViewModel
+@{
+    ViewBag.Title = "Facility Availability";
+}
+
+<a href="/FacilityBooking/CreateAdminBooking">Create New Booking</a>
+
+<form method="get" enctype="multipart/form-data" class="form" id="availabilityForm">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
+    <div>  
+    <label for="date">Date:</label>
+    <input type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+        </div>
+        <div>
+    <label for="category">Venue Type:</label>
+    <select name="categoryId">
+        <option value="">All</option>
+        @foreach (var category in Model.Categories)
+        {
+            <option value="@category.Id">@category.FacCategoryName</option>
+        }
+    </select>
+        </div>
+    <div><button type="submit">Search</button></div>
+    </div>
+</form>
+
+<div>
+    <button id="viewChart" onclick="toggleView('chart')">View in Chart Mode</button>
+    <button id="viewTable" onclick="toggleView('table')">View in Table Mode</button>
+</div>
+
+<div id="chartMode">
+    <h3>Availability Chart</h3>
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <td>Venue/Time</td>
+                @for (int hour = 8; hour <= 22; hour++)
+                {
+                    <td>@hour:00</td>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var facility in Model.Facilities)
+            {
+                <tr>
+                    <td>@facility.Name</td>
+                    @for (int hour = 8; hour <= 22; hour++)
+                    {
+                        var isBooked = Model.Bookings.Any(b => b.FacilityId == facility.Id 
+                                && b.StartTime.Hour <= hour && 
+                                b.EndTime.Hour > hour);
+                        var isClosed = !facility.IsActive;
+                        var isPast = DateTime.Now.Hour > hour && Model.SelectedDate.Date == DateTime.Today;
+                        <td class="@(isClosed ? "bg-secondary" : (isBooked ? "bg-primary" : (isPast ? "bg-white" : "bg-success")))"></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="tableMode" style="display:none;">
+    <h3>Detailed Booking Table</h3>
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <td>Facility</td>
+                <td>Booking Name</td>
+                <td>Phone</td>
+                <td>Email</td>
+                <td>Start Time</td>
+                <td>End Time</td>
+                <td>Fee Paid</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model.Bookings)
+            {
+                <tr>
+                    <td>@booking.Facility.Name</td>
+                    <td>@booking.Name</td>
+                    <td>@booking.PhoneNumber</td>
+                    <td>@booking.Email</td>
+                    <td>@booking.StartTime</td>
+                    <td>@booking.EndTime</td>
+                    <td>@booking.FeePaid?.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function toggleView(mode) {
+        const chartMode = document.getElementById('chartMode');
+        const tableMode = document.getElementById('tableMode');
+
+        if (mode === 'chart') {
+            chartMode.style.display = 'block';
+            tableMode.style.display = 'none';
+        } else {
+            chartMode.style.display = 'none';
+            tableMode.style.display = 'block';
+        }
+    }
+</script>

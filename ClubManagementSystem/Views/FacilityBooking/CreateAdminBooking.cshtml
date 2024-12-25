@@ -3,7 +3,7 @@
     ViewBag.Title = "Facility Booking";
 }
 
-<form method="post" enctype="multipart/form-data" class="form">
+<form method="post" class="form">
     <div asp-validation-summary="ModelOnly"></div>
 
     <label asp-for="Name">User Name</label>
@@ -11,7 +11,7 @@
     <span asp-validation-for="Name"></span>
 
     <label asp-for="PhoneNumber">Phone Number</label>
-    <input id="PhoneNumber" name="PhoneNumber" placeholder="e.g. 0123456789" asp-for="PhoneNumber">
+    <input id="PhoneNumber" asp-for="PhoneNumber" placeholder="e.g. 0123456789">
     <span asp-validation-for="PhoneNumber"></span>
 
     <label asp-for="Email">User Email</label>
@@ -21,7 +21,7 @@
     <div id="emailSuggestions" class="list-group mt-2"></div>
 
     <label asp-for="FacilityId">Facility</label>
-    <select id="FacilityId" name="FacilityId">
+    <select id="FacilityId" asp-for="FacilityId">
         <option value="">Select Facility</option>
         @foreach (var facility in ViewBag.Facilities)
         {
@@ -30,7 +30,7 @@
     </select>
 
     <label asp-for="BookingDate">Booking Date</label>
-    <input type="date" id="BookingDate" asp-for="BookingDate" >
+    <input type="date" id="BookingDate" asp-for="BookingDate">
     <span asp-validation-for="BookingDate"></span>
 
     <label asp-for="StartTime">Start Time</label>
@@ -42,11 +42,11 @@
     <span asp-validation-for="EndTime"></span>
 
     <label asp-for="FeePaid">Fee Paid (RM)</label>
-    <input type="number" step="0.01" asp-for="FeePaid" id="FeePaid" />
+    <input type="number" step="0.01" asp-for="FeePaid" id="FeePaid">
     <small class="text-muted" id="calculatedFee">Calculated Fee: RM 0.00</small>
 
     <label asp-for="PayBy">Payment Method</label>
-    <select id="PayBy" name="PayBy">
+    <select asp-for="PayBy">
         @foreach (var method in ViewBag.PaymentMethods)
         {
             <option value="@method">@method</option>
@@ -57,8 +57,26 @@
 </form>
 
 @section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
+            // Get available dates from ViewBag
+                var availableDates = @Html.Raw(Json.Serialize(ViewBag.AvailableDates));
+
+            // Disable unavailable dates in the date picker
+            $('#BookingDate').on('input', function () {
+                var selectedDate = $(this).val();
+
+                // Check if the selected date is in the list of available dates
+                if (availableDates.indexOf(selectedDate) === -1) {
+                    alert('This date is not available for booking!');
+                    $(this).val('');  // Reset the date picker
+                }
+            });
+
+            // Optionally, set minimum date as today
+            $('#BookingDate').attr('min', new Date().toISOString().split('T')[0]);
+            
             let timer = null;
 
             // AJAX Email Search
@@ -99,36 +117,59 @@
                 $('#emailSuggestions').empty();
             });
 
-            // Function to calculate the fee using AJAX
             function calculateFee() {
-                var facilityId = $('#FacilityId').val();
-                var bookingDate = $('#BookingDate').val();
-                var startTime = $('#StartTime').val();
-                var endTime = $('#EndTime').val();
-                var email = $('#UserEmail').val();
+                let facilityId = $('#FacilityId').val();
+                let bookingDate = $('#BookingDate').val();
+                let startTime = $('#StartTime').val();
+                let endTime = $('#EndTime').val();
+                let email = $('#UserEmail').val();
 
                 if (facilityId && bookingDate && startTime && endTime && email) {
                     $.get('@Url.Action("CalculateFee", "FacilityBooking")', {
-                        facilityId: facilityId,
-                        bookingDate: bookingDate,
-                        startTime: startTime,
-                        endTime: endTime,
-                        email: email
+                        facilityId, bookingDate, startTime, endTime, email
                     }, function (data) {
                         if (data.fee !== undefined) {
                             $('#calculatedFee').text(`Calculated Fee: RM ${data.fee.toFixed(2)}`);
-                            $('#FeePaid').val(data.fee.toFixed(2));  // Set the value in the hidden field
-                        } else if (data.error) {
+                            $('#FeePaid').val(data.fee);
+                        } else {
                             $('#calculatedFee').text(`Error: ${data.error}`);
                         }
                     });
                 }
             }
 
-            // Event listeners for input changes
-            $('#FacilityId, #BookingDate, #StartTime, #EndTime, #UserEmail').on('change input', function () {
-                calculateFee();
+            $('#FacilityId, #BookingDate, #StartTime, #EndTime, #UserEmail').on('change input', calculateFee);
+        
+            function restrictTime(inputId, intervalMinutes) {
+            let input = document.getElementById(inputId);
+
+            input.addEventListener('input', function () {
+                let time = input.value;
+                if (time) {
+                    let [hours, minutes] = time.split(':').map(Number);
+                    let totalMinutes = hours * 60 + minutes;
+
+                    // Adjust time to the nearest valid interval
+                    let remainder = totalMinutes % intervalMinutes;
+                    if (remainder !== 0) {
+                        totalMinutes -= remainder;
+                        hours = Math.floor(totalMinutes / 60);
+                        minutes = totalMinutes % 60;
+                        input.value = `${padZero(hours)}:${padZero(minutes)}`;
+                    }
+                }
             });
+        }
+
+        // Pad single-digit numbers with leading zero
+        function padZero(num) {
+            return num < 10 ? '0' + num : num;
+        }
+
+        // Apply restriction on both time inputs (start time and end time)
+        restrictTime('StartTime', 60);  // 30-minute intervals
+        restrictTime('EndTime', 60);    // 30-minute intervals
         });
+
     </script>
 }

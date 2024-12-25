@@ -81,6 +81,13 @@ public class FacilityCategoryViewModel
     public DateTime? ModifiedAt { get; set; }
     public int FacilityCount { get; set; } 
 }
+public class FacilityAvailabilityViewModel
+{
+    public List<Facility> Facilities { get; set; }
+    public List<FacBooking> Bookings { get; set; }
+    public List<FacilityCategories> Categories { get; set; }
+    public DateTime SelectedDate { get; set; }
+}
 
 public static class TimeValidation
 {

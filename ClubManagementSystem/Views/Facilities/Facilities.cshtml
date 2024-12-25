@@ -18,17 +18,17 @@
 <table class="table">
     <thead>
         <tr>
-            <th></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Image</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Price (per hour)</th>
-            <th>Is Active</th>
-            <th>Created At</th>
-            <th>Modified At</th>
-            <th>Actions</th>
+            <td></td>
+            <td>ID</td>
+            <td>Name</td>
+            <td>Image</td>
+            <td>Description</td>
+            <td>Category</td>
+            <td>Price (per hour)</td>
+            <td>Is Active</td>
+            <td>Created At</td>
+            <td>Modified At</td>
+            <td>Actions</td>
         </tr>
     </thead>
     <tbody>
@@ -57,7 +57,6 @@
                 <td>@facility.CreatedAt</td>
                 <td>@facility.ModifiedAt</td>
                 <td>
-                    <button data-get="/Facilities/Details/@facility.Id">Details</button>
                     <button data-get="/Facilities/UpdateFacilities/@facility.Id">Update</button>
                     <button data-post="/Facilities/DeleteFacilities/@facility.Id">Delete</button>
                 </td>
