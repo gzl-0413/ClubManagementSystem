@@ -21,7 +21,6 @@
             <td></td>
             <td>ID</td>
             <td>Name</td>
-            <td>Image</td>
             <td>Description</td>
             <td>Category</td>
             <td>Price (per hour)</td>
@@ -40,16 +39,6 @@
                 </td>
                 <td>@facility.Id</td>
                 <td>@facility.Name</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(facility.Image))
-                    {
-                        <span>@facility.Image</span>
-                    }
-                    else
-                    {
-                        <span>No Image</span>
-                    }
-                </td>
                 <td>@facility.Description</td>
                 <td>@facility.FacilityCategoriesId</td>
                 <td>@facility.Price</td>
