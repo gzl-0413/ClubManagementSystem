@@ -29,7 +29,7 @@ header h1 {
     flex: 1;
     margin: 0;
     padding-left: 40px;
-    background: url(/images/favicon.png) no-repeat left / 32px;
+    background: url(/images/logo.png) no-repeat left / 32px;
 }
 
 header a {
