@@ -39,6 +39,7 @@ public class FacilityBookingCapacity
     public DateOnly BookingDate { get; set; }
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
+    public bool isClass { get; set; }
     public int RemainingCapacity { get; set; } 
 
     // Navigation property

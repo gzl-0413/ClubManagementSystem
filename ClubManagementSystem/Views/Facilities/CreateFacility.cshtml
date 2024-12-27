@@ -16,7 +16,7 @@
     <span asp-validation-for="Description"></span>
 
     <label asp-for="Price"></label>
-    <input asp-for="Price" data-trim>
+    <input type="number" min="1" asp-for="Price" data-trim>
     <span asp-validation-for="Price"></span>
 
     <label asp-for="IsActive"></label>

@@ -7,21 +7,21 @@
 
 <form method="get" enctype="multipart/form-data" class="form" id="availabilityForm">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
-    <div>  
-    <label for="date">Date:</label>
-    <input type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+        <div>  
+            <label for="date">Date:</label>
+            <input type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
         </div>
         <div>
-    <label for="category">Venue Type:</label>
-    <select name="categoryId">
-        <option value="">All</option>
-        @foreach (var category in Model.Categories)
-        {
-            <option value="@category.Id">@category.FacCategoryName</option>
-        }
-    </select>
+            <label for="category">Venue Type:</label>
+            <select name="categoryId">
+                <option value="">All</option>
+                @foreach (var category in Model.Categories)
+                {
+                    <option value="@category.Id">@category.FacCategoryName</option>
+                }
+            </select>
         </div>
-    <div><button type="submit">Search</button></div>
+        <div><button type="submit">Search</button></div>
     </div>
 </form>
 
@@ -54,7 +54,20 @@
                                 b.EndTime.Hour > hour);
                         var isClosed = !facility.IsActive;
                         var isPast = DateTime.Now.Hour > hour && Model.SelectedDate.Date == DateTime.Today;
-                        <td class="@(isClosed ? "bg-secondary" : (isBooked ? "bg-primary" : (isPast ? "bg-white" : "bg-success")))"></td>
+                        var hasCapacityForDate = Model.Capacities != null && Model.Capacities.Any(c =>
+                        c.FacilityId == facility.Id &&
+                        c.BookingDate ==  DateOnly.FromDateTime(Model.SelectedDate));
+                        var isClass = hasCapacityForDate && Model.Capacities.Any(c => c.FacilityId == facility.Id
+                && c.isClass == true
+                && hour >= c.StartTime.Hour
+                && hour < c.EndTime.Hour);
+            
+            <td class="@(isClosed ? "bg-secondary" :
+                       (isClass ? "bg-danger" :
+                       (isBooked ? "bg-primary" :
+                       (!hasCapacityForDate ? "bg-white" :
+                       (isPast ? "bg-white" : "bg-success")))))">
+            </td>
                     }
                 </tr>
             }
@@ -74,6 +87,8 @@
                 <td>Start Time</td>
                 <td>End Time</td>
                 <td>Fee Paid</td>
+                <td>Pay By</td>
+                <td>Action</td>
             </tr>
         </thead>
         <tbody>
@@ -87,6 +102,10 @@
                     <td>@booking.StartTime</td>
                     <td>@booking.EndTime</td>
                     <td>@booking.FeePaid?.ToString("C")</td>
+                    <td>@booking.PayBy</td>
+                    <td>
+                        <button data-post="/FacilityBooking/CancelBooking/@booking.Id">Cancel</button>
+                    </td>
                 </tr>
             }
         </tbody>

@@ -1,0 +1,71 @@
+﻿@model FacilityAvailabilityViewModel
+@{
+    ViewBag.Title = "Facility Availability";
+}
+
+<a href="/FacilityBooking/CreateMemberBooking">Create New Booking</a>
+
+<form method="get" enctype="multipart/form-data" class="form" id="availabilityForm">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
+        <div>
+            <label for="date">Date:</label>
+            <input type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+        </div>
+        <div>
+            <label for="category">Venue Type:</label>
+            <select name="categoryId">
+                <option value="">All</option>
+                @foreach (var category in Model.Categories)
+                {
+                    <option value="@category.Id">@category.FacCategoryName</option>
+                }
+            </select>
+        </div>
+        <div><button type="submit">Search</button></div>
+    </div>
+</form>
+
+<div id="chartMode">
+    <h3>Availability Chart</h3>
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <td>Venue/Time</td>
+                @for (int hour = 8; hour <= 22; hour++)
+                {
+                    <td>@hour:00</td>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var facility in Model.Facilities)
+            {
+                <tr>
+                    <td>@facility.Name</td>
+                    @for (int hour = 8; hour <= 22; hour++)
+                    {
+                        var isBooked = Model.Bookings.Any(b => b.FacilityId == facility.Id
+                        && b.StartTime.Hour <= hour &&
+                        b.EndTime.Hour > hour);
+                        var isClosed = !facility.IsActive;
+                        var isPast = DateTime.Now.Hour > hour && Model.SelectedDate.Date == DateTime.Today;
+                        var hasCapacityForDate = Model.Capacities != null && Model.Capacities.Any(c =>
+                        c.FacilityId == facility.Id &&
+                        c.BookingDate == DateOnly.FromDateTime(Model.SelectedDate));
+                        var isClass = hasCapacityForDate && Model.Capacities.Any(c => c.FacilityId == facility.Id
+                        && c.isClass == true
+                        && hour >= c.StartTime.Hour
+                        && hour < c.EndTime.Hour);
+
+                        <td class="@(isClosed ? "bg-secondary" :
+                       (isClass ? "bg-danger" :
+                       (isBooked ? "bg-primary" :
+                       (!hasCapacityForDate ? "bg-white" :
+                       (isPast ? "bg-white" : "bg-success")))))">
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
