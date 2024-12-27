@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
     <link rel="stylesheet" href="/css/pager.css">
     <link rel="stylesheet" href="/css/app.css" asp-append-version="true">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet">    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet">
     @RenderSection("head", false)
     @RenderSection("Styles", false)
@@ -24,45 +23,49 @@
         {
             <div>
                 @User.Identity.Name |
-                @(User.IsInRole("Admin") ? "Admin" : "")
-                @(User.IsInRole("Member") ? "Member" : "")
+                @(User.IsInRole("Admin") ? "Admin" : "Member")
             </div>
         }
 
         @if (User.IsInRole("Member"))
         {
-            var photoURL = db.Members.Find(User.Identity!.Name)!.PhotoURL;
-            <img src="/photos/@photoURL">
+            var photoURL = db.Members.Find(User.Identity!.Name)?.PhotoURL ?? "default.png";
+            <img src="/photos/@photoURL" alt="Profile Photo" class="profile-photo">
         }
     </header>
 
     <nav>
         <a href="/Home/Index">Index</a>
-        <a href="/FacilityCategories/FacilityCategories">Facility Categories</a>
-        <a href="/Facilities/Facilities">Facilities</a>
-        <a href="/FacilityBooking/ViewSlots">Facility Booking</a>
-        <a href="/FacilitySlot/CreateSlots">Create Slots</a>
-        <a href="/FacilityBooking/ViewMemberSlots">View Member Slots</a>
-        <a href="/FacilitySlot/CreateClassSlots">Create Class Slots</a>
-        <a href="/Admin/AdminPage">Admin</a>
-        <a href="/Admin/MemberPage">Member</a>
-        <a href="/Announcement/AnnView">Announcement</a>
-        <div></div>
+        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+        {
+            <a href="/FacilityCategories/FacilityCategories">Facility Categories</a>
+            <a href="/Facilities/Facilities">Facilities</a>
+            <a href="/Admin/AdminPage">Admin</a>
+            <a href="/Admin/MemberPage">Member</a>
+            <a href="/Coach/CoachAdminHome">Coach</a>
+        }
 
+        @if (User.Identity.IsAuthenticated && User.IsInRole("Member"))
+        {
+            <a href="/FacilityBooking/ViewSlots">Facility Booking</a>
+            <a href="/Announcement/AnnView">Announcement</a>
+        }
+
+        <div></div>
         @if (User.Identity.IsAuthenticated)
         {
             <a href="/Account/Logout">Logout</a>
             <a href="/Account/UpdatePassword">Update Password</a>
+            @if (User.IsInRole("Member"))
+            {
+                <a href="/Account/UpdateProfile">Update Profile</a>
+            }
         }
         else
         {
             <a href="/Account/Login">Login</a>
             <a href="/Account/Register">Register</a>
             <a href="/Account/ResetPassword">Reset Password</a>
-        }
-        @if (User.IsInRole("Member"))
-        {
-            <a href="/Account/UpdateProfile">Update Profile</a>
         }
     </nav>
 
@@ -80,7 +83,6 @@
     <script src="/js/jquery.validate.min.js"></script>
     <script src="/js/jquery.validate.unobtrusive.min.js"></script>
     <script src="/js/app.js" asp-append-version="true"></script>
-
     @RenderSection("Scripts", false)
 </body>
 </html>
