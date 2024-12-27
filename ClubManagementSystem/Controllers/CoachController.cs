@@ -24,8 +24,8 @@ namespace ClubManagementSystem.Controllers
         }
 
         // CoachAdminHome: Dashboard for coaches
-        [Authorize(Roles = "Admin","SuperAdmin")]
-        public IActionResult CoachAdminHome(string name)
+        [Authorize(Roles = "Admin")]
+        public IActionResult CoachAdminHome(string name, int page = 1)
         {
             // Fetch all coaches
             IQueryable<Coach> coaches = db.Coaches.AsQueryable();

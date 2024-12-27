@@ -55,6 +55,7 @@ public class FacilityBookingViewModel
     [Range(0, double.MaxValue, ErrorMessage = "Fee paid must be a positive value.")]
     public decimal FeePaid { get; set; }
     public string PayBy {  get; set; }
+    public bool isPaid { get; set; }
 }
 
 public class FacilityBookingCapacityViewModel
@@ -87,6 +88,7 @@ public class FacilityAvailabilityViewModel
     public List<FacBooking> Bookings { get; set; }
     public List<FacilityCategories> Categories { get; set; }
     public DateTime SelectedDate { get; set; }
+    public List<FacilityBookingCapacity> Capacities { get; set; }
 }
 
 public static class TimeValidation

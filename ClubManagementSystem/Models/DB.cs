@@ -18,6 +18,8 @@ public class DB : DbContext
     public DbSet<EventPricing> EventPricing { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Admin> Admins { get; set; }
+    public DbSet<SuperAdmin> SuperAdmin { get; set; }
+
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<Member> Members { get; set; }
     public DbSet<Coach> Coaches { get; set; }
@@ -40,6 +42,7 @@ public class FacilityBookingCapacity
     public DateOnly BookingDate { get; set; }
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
+    public bool isClass { get; set; }
     public int RemainingCapacity { get; set; } 
 
     // Navigation property
@@ -209,6 +212,12 @@ public class Admin : User
 {
     // Additional properties for Admin, if any
 }
+
+public class SuperAdmin : User
+{ 
+
+}
+
 
 public class Staff : User
 {
