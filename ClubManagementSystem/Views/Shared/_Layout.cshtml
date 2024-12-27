@@ -5,11 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title</title>
-    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="shortcut icon" href="/images/logo.png">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
     <link rel="stylesheet" href="/css/pager.css">
     <link rel="stylesheet" href="/css/app.css" asp-append-version="true">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
     @RenderSection("head", false)
     @RenderSection("Styles", false)
 </head>
@@ -17,13 +20,13 @@
     <div class="info">@Html.Raw(TempData["Info"])</div>
 
     <header>
-        <h1><a href="/">Club Management System</a></h1>
+        <h1><a href="/">UnityOne ClubHouse</a></h1>
 
         @if (User.Identity!.IsAuthenticated)
         {
             <div>
                 @User.Identity.Name |
-                @(User.IsInRole("Admin") ? "Admin" : "Member")
+                @(User.IsInRole("Admin") ? "Admin" : (User.IsInRole("SuperAdmin") ? "SuperAdmin" : "Member"))
             </div>
         }
 
@@ -35,9 +38,18 @@
     </header>
 
     <nav>
-        <a href="/Home/Index">Index</a>
         @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
         {
+            <a href="/Admin/AdminHome">Home</a>
+            <a href="/FacilityCategories/FacilityCategories">Facility Categories</a>
+            <a href="/Facilities/Facilities">Facilities</a>
+            <a href="/Admin/MemberPage">Member</a>
+            <a href="/Coach/CoachAdminHome">Coach</a>
+        }
+
+        @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
+        {
+            <a href="/Admin/AdminHome">Home</a>
             <a href="/FacilityCategories/FacilityCategories">Facility Categories</a>
             <a href="/Facilities/Facilities">Facilities</a>
             <a href="/Admin/AdminPage">Admin</a>
@@ -47,6 +59,7 @@
 
         @if (User.Identity.IsAuthenticated && User.IsInRole("Member"))
         {
+            <a href="/Home/Index">Index</a>
             <a href="/FacilityBooking/ViewSlots">Facility Booking</a>
             <a href="/Announcement/AnnView">Announcement</a>
         }
