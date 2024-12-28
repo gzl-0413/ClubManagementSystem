@@ -128,6 +128,28 @@ public class FacBooking
     public Facility Facility { get; set; }
 }
 
+// Equipment Rental Module----------------------------------------------------------
+public class Equipment
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public decimal Price { get; set; }
+    public decimal Deposit { get; set; }
+    public bool IsRented { get; set; }
+}
+
+public class EquipmentRental
+{
+    public int Id { get; set; }
+    public int EquipmentId { get; set; }
+    public Equipment Equipment { get; set; }
+    public int UserId { get; set; }
+    public User User { get; set; }
+    public DateTime RentalDate { get; set; }
+    public bool IsDepositPaid { get; set; }
+    public bool IsDepositRefunded { get; set; }
+}
 // Event Management Module---------------------------------------------------------------
 // Event---------------------------------------------------------------------
 public class Event
