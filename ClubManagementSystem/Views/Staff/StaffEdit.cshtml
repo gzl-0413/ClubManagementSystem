@@ -1,0 +1,52 @@
+﻿@model ClubManagementSystem.Models.StaffVM.Edit
+
+@{
+    ViewData["Title"] = "Edit Staff";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="StaffEdit" method="post">
+    <input type="hidden" name="Id" value="@Model.Id" />
+
+    <div class="form-group">
+        <label for="Name">Name</label>
+        <input type="text" class="form-control" id="Name" name="Name" value="@Model.Name" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Password">Password (Leave blank to keep current password)</label>
+        <input type="password" class="form-control" id="Password" name="Password" />
+    </div>
+
+    <div class="form-group">
+        <label for="ConfirmPassword">Confirm Password</label>
+        <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" />
+    </div>
+
+    <!-- Display Current Photo -->
+    <div class="form-group">
+        <label for="CurrentPhoto">Current Photo</label>
+        @if (!string.IsNullOrEmpty(Model.PhotoURL))
+        {
+            <div>
+                <img src="@Url.Content("~/StaffImg/" + Model.PhotoURL)" alt="Current Photo" width="100" />
+            </div>
+        }
+        else
+        {
+            <p>No photo uploaded.</p>
+        }
+    </div>
+
+    <!-- Hidden Photo field, no longer allows user to change it -->
+    <input type="hidden" name="PhotoURL" value="@Model.PhotoURL" />
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="@Url.Action("StaffHome", "Staff")" class="btn btn-secondary">Cancel</a>
+</form>

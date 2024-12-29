@@ -1,0 +1,41 @@
+﻿@model ClubManagementSystem.Models.CoachCreateVM
+
+<h2>Create Coach</h2>
+
+<form asp-action="CreateCoach" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="Name">Name</label>
+        <input type="text" asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="PhoneNumber">Phone Number</label>
+        <input type="text" asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Password">Password</label>
+        <input type="password" asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Photo">Profile Photo</label>
+        <input type="file" asp-for="Photo" class="form-control" />
+        <span asp-validation-for="Photo" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="@Url.Action("CoachAdminHome")" class="btn btn-secondary">Cancel</a>
+</form>
+
+@* Show validation errors at the top of the form *@
+<div asp-validation-summary="All" class="text-danger"></div>

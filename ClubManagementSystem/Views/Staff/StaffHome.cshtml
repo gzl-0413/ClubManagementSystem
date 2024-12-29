@@ -1,0 +1,45 @@
+﻿@model IEnumerable<ClubManagementSystem.Models.Staff>
+
+@{
+    ViewData["Title"] = "Staff Home";
+}
+
+<h2>Staff Management</h2>
+
+<div class="mb-3">
+    <a href="@Url.Action("StaffAdd", "Staff")" class="btn btn-primary">Add New Staff</a>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Photo</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var staff in Model)
+        {
+            <tr>
+                <td>@staff.Name</td>
+                <td>@staff.Email</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(staff.PhotoURL))
+                    {
+                        <img src="@Url.Content($"~/Staffimg/{staff.PhotoURL}")" alt="Staff Photo" width="50" height="50" />
+                    }
+                    else
+                    {
+                        <img src="@Url.Content("~/images/default-avatar.png")" alt="Default Photo" width="50" height="50" />
+                    }
+                </td>
+                <td>
+                    <a href="@Url.Action("StaffEdit", "Staff", new { id = staff.Id })" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="@Url.Action("StaffDelete", "Staff", new { id = staff.Id })" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this staff member?');">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

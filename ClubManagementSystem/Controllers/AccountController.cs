@@ -49,9 +49,9 @@ public class AccountController : Controller
             hp.SignIn(u!.Email, u.Role, vm.RememberMe);
 
             // Redirect based on the role
-            if (u.Role == "Admin")
+            if (u.Role == "Admin" || u.Role == "SuperAdmin")
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("AdminHome", "Admin");
             }
 
             // If no specific role, use returnURL or default to Home/Index

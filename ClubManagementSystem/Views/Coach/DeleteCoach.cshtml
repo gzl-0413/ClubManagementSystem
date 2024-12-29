@@ -1,0 +1,37 @@
+﻿@model ClubManagementSystem.Models.Coach
+
+@{
+    ViewBag.Title = "Delete Coach Confirmation";
+}
+
+<div class="container">
+    <h2>Are you sure you want to delete the coach?</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="alert alert-warning">
+        <strong>Coach Name:</strong> @Model.Name <br />
+        <strong>Email:</strong> @Model.Email <br />
+        <strong>Phone:</strong> @Model.PhoneNumber <br />
+        <strong>Coach ID:</strong> @Model.CoachID
+    </div>
+
+    <form method="post" asp-action="DeleteCoachConfirmed" asp-controller="Coach">
+        @Html.AntiForgeryToken()
+        <!-- Hidden input to pass the coach ID -->
+        <input type="hidden" name="id" value="@Model.CoachID" />
+        <button type="submit" class="btn btn-danger">Confirm Deletion</button>
+        <a href="@Url.Action("CoachAdminHome", "Coach")" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

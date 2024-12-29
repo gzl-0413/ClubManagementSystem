@@ -1,0 +1,50 @@
+﻿@model ClubManagementSystem.Models.UpdateCoachProfileVM
+
+@{
+    ViewBag.Title = "Edit Coach";
+}
+
+<h2>Edit Coach</h2>
+
+<form asp-action="EditCoach" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <!-- Name Field -->
+    <div class="form-group">
+        <label asp-for="Name" class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <!-- Email Field -->
+    <div class="form-group">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <!-- Phone Number Field -->
+    <div class="form-group">
+        <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <!-- Photo Field -->
+    <div class="form-group">
+        <label for="Photo" class="form-label">Upload Photo</label>
+        @if (!string.IsNullOrEmpty(Model.Photo))
+        {
+            <div class="mb-2">
+                <img src="~/coaches/@Model.Photo" alt="Coach Photo" style="width: 100px; height: 100px;" />
+                <small class="text-muted d-block">Current photo</small>
+            </div>
+        }
+        <input type="file" asp-for="Photo" class="form-control" />
+        <span asp-validation-for="Photo" class="text-danger"></span>
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="@Url.Action("CoachAdminHome", "Coach")" class="btn btn-secondary">Cancel</a>
+</form>

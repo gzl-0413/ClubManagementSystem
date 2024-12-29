@@ -18,6 +18,8 @@ public class DB : DbContext
     public DbSet<EventPricing> EventPricing { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Admin> Admins { get; set; }
+    public DbSet<SuperAdmin> SuperAdmin { get; set; }
+
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<Member> Members { get; set; }
     public DbSet<Announcement> Announcements { get; set; }
@@ -40,6 +42,7 @@ public class FacilityBookingCapacity
     public DateOnly BookingDate { get; set; }
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
+    public bool isClass { get; set; }
     public int RemainingCapacity { get; set; } 
 
     // Navigation property
@@ -208,17 +211,36 @@ public class Admin : User
     // Additional properties for Admin, if any
 }
 
-public class Staff : User
+public class SuperAdmin : User
+{ 
+
+}
+
+
+public class Staff
 {
+    [Key]
     [Required]
-    [MaxLength(255)]
-    public string Password { get; set; }
+    [MaxLength(50)] // Optional: Limit the length of the string
+    public string Id { get; set; } // String as the primary key
+
+    [Required, MaxLength(100)]
+    [EmailAddress]
+    public string Email { get; set; }
+
+    [Required, MaxLength(255)]
+    public string Hash { get; set; }
+
+    [Required, MaxLength(100)]
+    public string Name { get; set; }
 
     [MaxLength(255)]
     public string PhotoURL { get; set; }
 
-    // Additional properties for Staff, if any
+
 }
+
+
 
 public class Member : User
 {

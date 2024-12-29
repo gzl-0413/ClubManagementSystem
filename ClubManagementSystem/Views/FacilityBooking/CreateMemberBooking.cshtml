@@ -1,0 +1,147 @@
+﻿@model FacilityBookingViewModel
+@{
+    ViewBag.Title = "Facility Booking";
+}
+
+<form method="post" class="form">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Name">User Name</label>
+    <input id="UserName" asp-for="Name">
+    <span asp-validation-for="Name"></span>
+
+    <label asp-for="PhoneNumber">Phone Number</label>
+    <input id="PhoneNumber" asp-for="PhoneNumber" placeholder="e.g. 0123456789">
+    <span asp-validation-for="PhoneNumber"></span>
+
+    <label asp-for="Email">User Email</label>
+    <input id="UserEmail"
+           data-url="@Url.Action("GetEmails", "FacilityBooking")"
+           autocomplete="off" asp-for="Email">
+    <div id="emailSuggestions" class="list-group mt-2"></div>
+
+    <label asp-for="FacilityId">Facility</label>
+    <select id="FacilityId" asp-for="FacilityId">
+        <option value="">Select Facility</option>
+        @foreach (var facility in ViewBag.Facilities)
+        {
+            <option value="@facility.Id">@facility.Name</option>
+        }
+    </select>
+
+    <label asp-for="BookingDate">Booking Date</label>
+    <input type="date" id="BookingDate" asp-for="BookingDate">
+    <span asp-validation-for="BookingDate"></span>
+
+    <label asp-for="StartTime">Start Time</label>
+    <input type="time" id="StartTime" asp-for="StartTime" step="3600">
+    <span asp-validation-for="StartTime"></span>
+
+    <label asp-for="EndTime">End Time</label>
+    <input type="time" id="EndTime" asp-for="EndTime" step="3600">
+    <span asp-validation-for="EndTime"></span>
+
+    <button type="submit">Submit Booking</button>
+</form>
+
+@section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+       
+            let timer = null;
+
+            // AJAX Email Search
+            $('#UserEmail').on('input', function () {
+                clearTimeout(timer);
+                let email = $(this).val();
+                let url = $(this).data('url');
+
+                if (email.length > 2) {
+                    timer = setTimeout(() => {
+                        $.get(url, { term: email }, function (data) {
+                            let suggestions = $('#emailSuggestions');
+                            suggestions.empty();
+                            if (data.length > 0) {
+                                data.forEach(user => {
+                                    suggestions.append(`<div class="list-group-item list-group-item-action"
+                                        data-email="${user.email}"
+                                        data-name="${user.name}">${user.email} - ${user.name}</div>`);
+                                });
+                            }
+                        });
+                    }, 100);
+                } else {
+                    $('#emailSuggestions').empty();
+                }
+            });
+
+            // Fill in selected email and user name
+            $('#emailSuggestions').on('click', '.list-group-item', function () {
+                let selectedEmail = $(this).data('email');
+                let selectedName = $(this).data('name');
+
+                // Set the email and user name
+                $('#UserEmail').val(selectedEmail);
+                $('#UserName').val(selectedName); // Assuming the UserName input is correctly bound to the Name field
+
+                // Clear suggestions after selection
+                $('#emailSuggestions').empty();
+            });
+
+            function calculateFee() {
+                let facilityId = $('#FacilityId').val();
+                let bookingDate = $('#BookingDate').val();
+                let startTime = $('#StartTime').val();
+                let endTime = $('#EndTime').val();
+                let email = $('#UserEmail').val();
+
+                if (facilityId && bookingDate && startTime && endTime && email) {
+                    $.get('@Url.Action("CalculateFee", "FacilityBooking")', {
+                        facilityId, bookingDate, startTime, endTime, email
+                    }, function (data) {
+                        if (data.fee !== undefined) {
+                            $('#calculatedFee').text(`Calculated Fee: RM ${data.fee.toFixed(2)}`);
+                            $('#FeePaid').val(data.fee);
+                        } else {
+                            $('#calculatedFee').text(`Error: ${data.error}`);
+                        }
+                    });
+                }
+            }
+
+            $('#FacilityId, #BookingDate, #StartTime, #EndTime, #UserEmail').on('change input', calculateFee);
+
+            function restrictTime(inputId, intervalMinutes) {
+            let input = document.getElementById(inputId);
+
+            input.addEventListener('input', function () {
+                let time = input.value;
+                if (time) {
+                    let [hours, minutes] = time.split(':').map(Number);
+                    let totalMinutes = hours * 60 + minutes;
+
+                    // Adjust time to the nearest valid interval
+                    let remainder = totalMinutes % intervalMinutes;
+                    if (remainder !== 0) {
+                        totalMinutes -= remainder;
+                        hours = Math.floor(totalMinutes / 60);
+                        minutes = totalMinutes % 60;
+                        input.value = `${padZero(hours)}:${padZero(minutes)}`;
+                    }
+                }
+            });
+        }
+
+        // Pad single-digit numbers with leading zero
+        function padZero(num) {
+            return num < 10 ? '0' + num : num;
+        }
+
+        // Apply restriction on both time inputs (start time and end time)
+        restrictTime('StartTime', 60);  // 30-minute intervals
+        restrictTime('EndTime', 60);    // 30-minute intervals
+        });
+
+    </script>
+}

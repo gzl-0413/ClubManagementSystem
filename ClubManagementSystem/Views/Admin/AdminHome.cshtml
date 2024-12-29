@@ -5,3 +5,57 @@
 
 <h1>Welcome to the Admin Dashboard</h1>
 <p>Here you can manage the system, view reports, and perform administrative tasks.</p>
+
+<div class="container mt-5">
+    <h3>Member Overview</h3>
+    <canvas id="memberChart" width="400" height="200"></canvas>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data for the chart
+        const data = {
+            labels: ['Total Members', 'Active Members', 'Inactive Members'],
+            datasets: [{
+                label: 'Member Statistics',
+                data: [@ViewBag.TotalMembers, @ViewBag.ActiveMembers, @ViewBag.InactiveMembers],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)', // Total
+                    'rgba(54, 162, 235, 0.2)', // Active
+                    'rgba(255, 99, 132, 0.2)'  // Inactive
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // Chart configuration
+        const config = {
+            type: 'bar', // You can change to 'pie', 'line', etc.
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Member Statistics'
+                    }
+                }
+            }
+        };
+
+        // Render the chart
+        const memberChart = new Chart(
+            document.getElementById('memberChart'),
+            config
+        );
+    </script>
+}
