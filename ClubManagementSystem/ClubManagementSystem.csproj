@@ -19,7 +19,6 @@
   <ItemGroup>
     <Folder Include="Views\Feedback\" />
     <Folder Include="wwwroot\images\facilities\" />
-    <Folder Include="wwwroot\StaffImg\" />
     <Folder Include="wwwroot\photos\" />
   </ItemGroup>
 
