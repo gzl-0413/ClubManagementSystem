@@ -1,0 +1,53 @@
+﻿@model ClubManagementSystem.Models.StaffVM.Create
+
+@{
+    ViewData["Title"] = "Add Staff";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@* Display any error messages *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@* Display any success messages *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<form asp-action="StaffAdd" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="Name">Name</label>
+        <input type="text" id="Name" name="Name" class="form-control" value="@Model.Name" required />
+        <span class="text-danger" asp-validation-for="Name"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" id="Email" name="Email" class="form-control" value="@Model.Email" required />
+        <span class="text-danger" asp-validation-for="Email"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Password">Password</label>
+        <input type="password" id="Password" name="Password" class="form-control" required />
+        <span class="text-danger" asp-validation-for="Password"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Photo">Upload Photo</label>
+        <input type="file" id="Photo" name="Photo" class="form-control" accept="image/*" />
+        <span class="text-danger" asp-validation-for="Photo"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Staff</button>
+    <a href="@Url.Action("StaffHome", "Staff")" class="btn btn-secondary">Cancel</a>
+</form>
+

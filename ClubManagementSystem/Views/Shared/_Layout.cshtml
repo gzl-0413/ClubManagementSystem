@@ -23,7 +23,7 @@
         {
             <div>
                 @User.Identity.Name |
-                @(User.IsInRole("Admin") ? "Admin" : (User.IsInRole("SuperAdmin")? "SuperAdmin" : "Member"))
+                @(User.IsInRole("Admin") ? "Admin" : (User.IsInRole("SuperAdmin") ? "SuperAdmin" : "Member"))
             </div>
         }
 
@@ -35,6 +35,18 @@
     </header>
 
     <nav>
+        <a href="/Home/Index">Index</a>
+        <a href="/FacilityCategories/FacilityCategories">Facility Categories</a>
+        <a href="/Facilities/Facilities">Facilities</a>
+        <a href="/FacilityBooking/ViewSlots">Facility Booking</a>
+        <a href="/FacilitySlot/CreateSlots">Create Slots</a>
+        <a href="/FacilityBooking/ViewMemberSlots">View Member Slots</a>
+        <a href="/FacilitySlot/CreateClassSlots">Create Class Slots</a>
+        <a href="/Admin/AdminPage">Admin</a>
+        <a href="/Admin/MemberPage">Member</a>
+        <a href="/Announcement/AnnView">Announcement</a>
+        <div></div>
+
         @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
         {
             <a href="/Admin/AdminHome">Home</a>
@@ -50,7 +62,7 @@
             <a href="/Facilities/Facilities">Facilities</a>
             <a href="/Admin/AdminPage">Admin</a>
             <a href="/Admin/MemberPage">Member</a>
-            <a href="/Coach/CoachAdminHome">Coach</a>
+            <a href="/Staff/StaffHome">Staff</a>
         }
 
         @if (User.Identity.IsAuthenticated && User.IsInRole("Member"))

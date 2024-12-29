@@ -22,7 +22,6 @@ public class DB : DbContext
 
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<Member> Members { get; set; }
-    public DbSet<Coach> Coaches { get; set; }
 
     public DbSet<Announcement> Announcements { get; set; }
 }
@@ -219,15 +218,29 @@ public class SuperAdmin : User
 }
 
 
-public class Staff : User
+public class Staff
 {
+    [Key]
     [Required]
-    [MaxLength(255)]
-    public string Password { get; set; }
+    [MaxLength(50)] // Optional: Limit the length of the string
+    public string Id { get; set; } // String as the primary key
+
+    [Required, MaxLength(100)]
+    [EmailAddress]
+    public string Email { get; set; }
+
+    [Required, MaxLength(255)]
+    public string Hash { get; set; }
+
+    [Required, MaxLength(100)]
+    public string Name { get; set; }
 
     [MaxLength(255)]
     public string PhotoURL { get; set; }
+
+
 }
+
 
 
 public class Member : User
@@ -262,32 +275,6 @@ public class Announcement
     public string AdminEmail { get; set; }
 }
 
-public class Coach
-{
-    [Key]
-    [Required]
-    public string CoachID { get; set; } // Unique identifier for each coach in the format CH1234
-
-    [Required(ErrorMessage = "Name is required.")]
-    [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
-    public string Name { get; set; }
-
-    [EmailAddress(ErrorMessage = "Invalid email format.")]
-    public string? Email { get; set; }
-
-    [Required(ErrorMessage = "Password is required.")]
-    [MaxLength(255, ErrorMessage = "Password cannot exceed 255 characters.")]
-    public string Password { get; set; }
-
-    [MaxLength(255, ErrorMessage = "Photo URL cannot exceed 255 characters.")]
-    public string? Photo { get; set; }
-
-    [MaxLength(15, ErrorMessage = "Phone number cannot exceed 15 characters.")]
-    public string? PhoneNumber { get; set; }
-
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime? ModifiedAt { get; set; }
-}
 
 
 
