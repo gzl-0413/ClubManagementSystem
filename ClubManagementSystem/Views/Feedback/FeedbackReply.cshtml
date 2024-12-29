@@ -1,0 +1,194 @@
+﻿@model FeedBackViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Feedback Reply</title>
+    <style>
+        body {
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="file"] {
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #218838;
+            }
+
+        .go-back {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+            .go-back:hover {
+                background-color: #c82333;
+                color: white;
+            }
+
+        .feedback-details p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .feedback-photos img {
+            margin: 5px;
+            width: 100px;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .image-preview img {
+            margin: 5px;
+            width: 100px;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .submit-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="feedback-details">
+            <h2>Feedback Details</h2>
+            <p><strong>User Name:</strong> @Model.UserName</p> <!-- Display the UserName -->
+            <p><strong>Content:</strong> @Model.Content</p>
+            <p><strong>Date Submitted:</strong> @Model.CreateDateTime.ToString("yyyy-MM-dd HH:mm")</p>
+            @if (!string.IsNullOrEmpty(Model.Photo) && Model.Photo != "-")
+            {
+                <p><strong>Photos:</strong></p>
+                <div class="feedback-photos">
+                    @foreach (var photo in Model.Photo.Split(','))
+                    {
+                        <img src="@Url.Content($"~/photos/{photo}")" alt="Feedback Photo" />
+                    }
+                </div>
+            }
+        </div>
+
+        <form asp-action="FeedbackReply" asp-controller="Feedback" enctype="multipart/form-data" method="post">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <label for="ReplyContent">Your Reply</label>
+            <textarea id="ReplyContent" name="ReplyContent" rows="5" required>@Model.ReplyContent</textarea>
+
+            <label for="ReplyPhoto">Upload Photos (Max: 3, optional)</label>
+            <input type="file" id="ReplyPhoto" name="ReplyPhoto" accept="image/*" multiple />
+
+            <div class="image-preview"></div>
+
+            <div class="submit-container">
+                <a href="javascript:history.back()" class="go-back">Go Back</a>
+                <button type="submit">Submit Reply</button>
+            </div>
+        </form>
+
+        <script>
+            document.getElementById("ReplyPhoto").addEventListener("change", function () {
+                const files = Array.from(this.files);
+                const previewContainer = document.querySelector(".image-preview");
+
+                if (files.length > 3) {
+                    alert("You can only upload a maximum of 3 photos.");
+                    this.value = "";
+                    previewContainer.innerHTML = "";
+                    return;
+                }
+
+                previewContainer.innerHTML = "";
+
+                files.forEach(file => {
+                    if (!file.type.startsWith("image/")) {
+                        alert("Only image files are allowed.");
+                        this.value = "";
+                        previewContainer.innerHTML = "";
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // Add alert confirmation for the form submission
+            const form = document.querySelector("form");
+            if (form) {
+                form.addEventListener("submit", function (e) {
+                    if (!confirm("Are you sure you want to submit this reply?")) {
+                        e.preventDefault(); // Prevent form submission if user cancels
+                    }
+                });
+            } else {
+                console.warn("Form not found.");
+            }
+        </script>
+    </div>
+
+</body>
+</html>

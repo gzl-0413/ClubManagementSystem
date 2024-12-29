@@ -1,0 +1,189 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<Feedback>
+
+@{
+    ViewBag.Title = "Feedback List";
+    string[] fields = ["User Name", "Content", "Photo", "CreateDateTime", "ReplyStatus"];
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: black;
+        }
+
+            th a {
+                text-decoration: none;
+                color: black;
+            }
+
+        tr:hover {
+            background-color: #e6e6e6;
+            cursor: pointer;
+        }
+
+        th, td {
+            text-align: center;
+        }
+
+        .reply-button, .reply-status {
+            display: inline-block;
+            width: 80px; /* Set a fixed width */
+            text-align: center;
+            padding: 6px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .reply-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+            .reply-button:hover {
+                background-color: #218838;
+                color: white;
+            }
+
+        .reply-status {
+            background-color: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        table th a.asc::after {
+            content: ' ▴';
+        }
+
+        table th a.des::after {
+            content: ' ▾';
+        }
+
+        .reply-button.disabled {
+            background-color: #ccc;
+            color: #666;
+            cursor: not-allowed;
+            text-decoration: none;
+            pointer-events: none;
+        }
+    </style>
+    <script>
+        // Make table rows clickable
+        document.addEventListener('DOMContentLoaded', function () {
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('click', function (e) {
+                    if (!e.target.closest('.reply-button')) { // Exclude reply button clicks
+                        const detailsUrl = this.dataset.href;
+                        window.location.href = detailsUrl;
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <form>
+        @Html.TextBox("name", "",
+                 new { type = "search", autofocus = "", data_trim = "" })
+        @Html.Hidden("sort")
+        @Html.Hidden("dir")
+        <button>Search</button>
+    </form>
+
+    <p>
+        @Model.Count() of @Model.TotalItemCount record(s) |
+        Page @Model.PageNumber of @Model.PageCount
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                @foreach (var f in fields)
+                {
+                    string d = "asc";
+                    string c = "";
+
+                    if (f == ViewBag.Sort)
+                    {
+                        d = ViewBag.Dir == "des" ? "asc" : "des";
+                        c = ViewBag.Dir;
+                    }
+
+                    <th>
+                        <a href="?name=@ViewBag.Name&sort=@f&dir=@d" class="@c">@f</a>
+                    </th>
+                }
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var feedback in Model)
+            {
+                <tr data-href="/Feedback/FeedbackDetail/@feedback.Id">
+                    <td>@(string.IsNullOrWhiteSpace(ViewBag.Users[feedback.UserEmail]) ? "-" : ViewBag.Users[feedback.UserEmail])</td>
+                    <td>@feedback.Content</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(feedback.Photo) && feedback.Photo != "-")
+                        {
+                            var photos = feedback.Photo.Split(','); // Assuming photos are stored as a comma-separated string
+                            foreach (var photo in photos)
+                            {
+                                <img src="@Url.Content($"~/photos/{photo.Trim()}")" alt="Feedback Photo" width="50" height="auto" style="margin: 2px;" />
+                            }
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                    <td>@feedback.CreateDateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@feedback.ReplyStatus</td>
+                    <td>
+                        @if (feedback.ReplyStatus?.ToLower() == "replied")
+                        {
+                            <span class="reply-status" title="Already replied">Replied</span>
+                        }
+                        else
+                        {
+                            <a href="/Feedback/FeedbackReply/@feedback.Id" class="reply-button">Reply</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @{
+        var options = PagedListRenderOptions.ClassicPlusFirstAndLast;
+        options.LinkToFirstPageFormat = "First";
+        options.LinkToLastPageFormat = "Last";
+        options.LinkToPreviousPageFormat = "Previous";
+        options.LinkToNextPageFormat = "Next";
+    }
+
+    @Html.PagedListPager(
+            Model,
+            page => $"?name={ViewBag.Name}&sort={ViewBag.Sort}&dir={ViewBag.Dir}&page={page}",
+            options
+            )
+</body>
+</html>

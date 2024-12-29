@@ -4,7 +4,7 @@
 
 @{
     ViewBag.Title = "Home | Demo 5 - Combined";
-    string[] fields = ["Title", "Content", "Photo", "DateTime", "AdminEmail"];
+    string[] fields = ["Title", "Content", "Photo", "DateTime", "Admin Name", "Status"];
 }
 
 <!DOCTYPE html>
@@ -28,25 +28,25 @@
             color: black;
         }
 
-        th a {
-            text-decoration: none; /* Remove underline */
-            color: black; /* Ensure links in headers are black */
-        }
+            th a {
+                text-decoration: none; /* Remove underline */
+                color: black; /* Ensure links in headers are black */
+            }
 
         tr:hover {
             background-color: #e6e6e6; /* Light grey background on row hover */
         }
 
-            /* Center content horizontally and vertically for specific columns */
-            th:nth-child(1), th:nth-child(2),
-            th:nth-child(3), td:nth-child(3),
-            th:nth-child(4), td:nth-child(4),
-            th:nth-child(5), td:nth-child(5),
-            th:nth-child(6), td:nth-child(6),
-            th:nth-child(7), td:nth-child(7) {
-                text-align: center;
-                vertical-align: middle;
-            }
+        /* Center content horizontally and vertically for specific columns */
+        th:nth-child(1), th:nth-child(2),
+        th:nth-child(3), td:nth-child(3),
+        th:nth-child(4), td:nth-child(4),
+        th:nth-child(5), td:nth-child(5),
+        th:nth-child(6), td:nth-child(6),
+        th:nth-child(7), td:nth-child(7) {
+            text-align: center;
+            vertical-align: middle;
+        }
 
         .toggle-switch {
             position: relative;
@@ -106,6 +106,7 @@
 
             .add-button:hover {
                 background-color: #0056b3;
+                color: white;
             }
 
         .status-text {
@@ -123,6 +124,57 @@
             content: ' ▾';
         }
 
+        .photo-container {
+            display: flex;
+            gap: 10px;
+        }
+
+            .photo-container img {
+                width: 100px;
+                height: auto; 
+                border-radius: 5px; 
+                border: 1px solid #ddd;
+                cursor: pointer;
+            }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); 
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .modal img {
+            width: 100%;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            .close:hover,
+            .close:focus {
+                color: #bbb;
+                text-decoration: none;
+                cursor: pointer;
+            }
     </style>
 </head>
 <body>
@@ -159,7 +211,6 @@
                         <a href="?name=@ViewBag.Name&sort=@f&dir=@d" class="@c">@f</a>
                     </th>
                 }
-                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -170,14 +221,24 @@
                     <td>@announcement.Title</td>
                     <td>@announcement.Content</td>
                     <td>
-                        @foreach (var photo in announcement.Photo.Split(','))
+                        @if (!string.IsNullOrEmpty(announcement.Photo) && announcement.Photo != "-")
                         {
-                            <img src="@Url.Content($"~/photos/{photo.Trim()}")" alt="Announcement Photo" width="100" height="auto" style="margin-right: 10px;" />
+                            <div class="photo-container">
+                                @foreach (var photo in announcement.Photo.Split(','))
+                                {
+                                    <a href="javascript:void(0);" onclick="openModal('@Url.Content($"~/photos/{photo.Trim()}")')">
+                                        <img src="@Url.Content($"~/photos/{photo.Trim()}")" alt="Announcement Photo" />
+                                    </a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <span>-</span>
                         }
                     </td>
-
                     <td>@announcement.DateTime.ToString("yyyy-MM-dd HH:mm")</td>
-                    <td>@announcement.AdminEmail</td>
+                    <td>@(string.IsNullOrWhiteSpace(ViewBag.Admins[announcement.AdminEmail]) ? "-" : ViewBag.Admins[announcement.AdminEmail])</td>
                     <td>
                         @if (announcement.Status == "Posted" || announcement.Status == "Blocked")
                         {
@@ -204,21 +265,26 @@
         </tbody>
     </table>
 
-    @{
-        var options = PagedListRenderOptions.ClassicPlusFirstAndLast;
-        options.LinkToFirstPageFormat = "First";
-        options.LinkToLastPageFormat = "Last";
-        options.LinkToPreviousPageFormat = "Previous";
-        options.LinkToNextPageFormat = "Next";
-    }
-
-    @Html.PagedListPager(
-        Model,
-        page => $"?name={ViewBag.Name}&sort={ViewBag.Sort}&dir={ViewBag.Dir}&page={page}",
-        options
-    )
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
 
     <script>
+        // Open the modal with the clicked image
+        function openModal(imgSrc) {
+            var modal = document.getElementById("myModal");
+            var modalImg = document.getElementById("img01");
+            modal.style.display = "block";
+            modalImg.src = imgSrc;
+        }
+
+        // Close the modal
+        function closeModal() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+
         async function toggleStatus(checkbox) {
             const announcementId = checkbox.getAttribute("data-id");
             const newStatus = checkbox.checked ? "Posted" : "Blocked";
