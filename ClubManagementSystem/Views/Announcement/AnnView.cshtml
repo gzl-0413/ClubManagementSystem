@@ -97,7 +97,43 @@
                 height: auto;
                 border-radius: 8px;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
             }
+
+        /* Lightbox styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+            .lightbox img {
+                max-width: 90%;
+                max-height: 90%;
+                margin: auto;
+                object-fit: contain;
+            }
+
+            .lightbox.active {
+                display: flex;
+            }
+
+        .lightbox-close {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            color: white;
+            font-size: 50px;
+            cursor: pointer;
+        }
 
         /* Icon button container */
         .icon-buttons {
@@ -209,6 +245,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Create lightbox elements
+            const lightbox = document.createElement("div");
+            const lightboxImg = document.createElement("img");
+            const closeBtn = document.createElement("span");
+
+            // Set up lightbox container
+            lightbox.classList.add("lightbox");
+            lightbox.appendChild(lightboxImg);
+            closeBtn.classList.add("lightbox-close");
+            closeBtn.textContent = "×";
+            lightbox.appendChild(closeBtn);
+            document.body.appendChild(lightbox);
+
+            // Open lightbox on image click
+            const images = document.querySelectorAll(".announcement-images img");
+            images.forEach(img => {
+                img.addEventListener("click", function() {
+                    lightboxImg.src = img.src; // Set the lightbox image source to the clicked image
+                    lightbox.classList.add("active"); // Show the lightbox
+                });
+            });
+
+            // Close lightbox when the close button is clicked
+            closeBtn.addEventListener("click", function() {
+                lightbox.classList.remove("active"); // Hide the lightbox
+            });
+
+            // Close lightbox when clicking outside the image
+            lightbox.addEventListener("click", function(e) {
+                if (e.target === lightbox) {
+                    lightbox.classList.remove("active"); // Hide the lightbox
+                }
+            });
+        });
+
+        // Function for liking an announcement
         function toggleLike(button, announcementId) {
             $.ajax({
                 url: '@Url.Action("LikeAnn", "Announcement")', // URL to your action
@@ -232,7 +305,7 @@
             });
         }
 
-
+        // Function for sharing an announcement
         function shareAnnouncement(announcementId) {
             const currentUrl = window.location.href.split('#')[0]; // Base URL without hash
             const shareUrl = `${currentUrl}#announcement-${announcementId}`;

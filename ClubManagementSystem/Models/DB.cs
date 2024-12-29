@@ -22,8 +22,9 @@ public class DB : DbContext
 
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<Member> Members { get; set; }
-
     public DbSet<Announcement> Announcements { get; set; }
+    public DbSet<Feedback> Feedbacks { get; set; }
+
 }
 
 // Entity Classes----------------------------------------------------------
@@ -205,8 +206,6 @@ public abstract class User
     public string ActivationCode { get; set; }
 }
 
-
-
 public class Admin : User
 {
     // Additional properties for Admin, if any
@@ -251,7 +250,7 @@ public class Member : User
 
 public class Announcement
 {
-    [Key, Required, MaxLength(100)]
+    [Key]
     public string Id { get; set; }
 
     [Required, MaxLength(300)]
@@ -267,7 +266,7 @@ public class Announcement
     public DateTime DateTime { get; set; }
 
     [Required]
-    public string Status { get; set; } 
+    public string Status { get; set; } // Posted, Pending, Error
 
     public string LikeUsers { get; set; } = string.Empty;
 
@@ -275,6 +274,34 @@ public class Announcement
     public string AdminEmail { get; set; }
 }
 
+public class Feedback
+{
+    [Key]
+    public string Id { get; set; }
 
+    [Required, MaxLength(2000)]
+    public string Content { get; set; }
 
+    public string Photo { get; set; }
+
+    [Required]
+    public string ReadStatus { get; set; } //read/unread
+
+    [Required]
+    public DateTime CreateDateTime { get; set; }
+
+    public string ReplyContent { get; set; }
+
+    public string ReplyPhoto { get; set; }
+
+    public DateTime? ReplyDateTime { get; set; }
+
+    [Required]
+    public string ReplyStatus { get; set; } //replied/pending
+
+    // FK
+    public string AdminEmail { get; set; }
+    public string UserEmail { get; set; }
+
+}
 

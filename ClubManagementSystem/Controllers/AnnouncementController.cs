@@ -45,6 +45,10 @@ namespace ClubManagementSystem.Controllers
                          searched.OrderByDescending(fn) :
                          searched.OrderBy(fn);
 
+            var adminEmails = sorted.Select(f => f.AdminEmail).Distinct().ToList();
+            var admins = db.Users.Where(u => adminEmails.Contains(u.Email))
+                                 .ToDictionary(u => u.Email, u => u.Name);
+
             // Pagination
             if (page < 1)
             {
@@ -57,6 +61,8 @@ namespace ClubManagementSystem.Controllers
             {
                 return RedirectToAction(null, new { name, sort, dir, page = m.PageCount });
             }
+
+            ViewBag.Admins = admins;
 
             return View(m);
         }
@@ -122,16 +128,16 @@ namespace ClubManagementSystem.Controllers
                 var numericPart = lastAnnouncement.Id.Substring(1);
                 if (int.TryParse(numericPart, out int number))
                 {
-                    announcement.Id = $"A{(number + 1):D3}";
+                    announcement.Id = $"A{(number + 1):D4}";
                 }
                 else
                 {
-                    announcement.Id = "A001"; // Handle unexpected formats
+                    announcement.Id = "A0001"; // Handle unexpected formats
                 }
             }
             else
             {
-                announcement.Id = "A001"; // Default ID if no records
+                announcement.Id = "A0001"; // Default ID if no records
             }
 
             // Assign other properties programmatically
@@ -180,7 +186,7 @@ namespace ClubManagementSystem.Controllers
                 db.Announcements.Add(announcement);
                 db.SaveChanges();
 
-                TempData["Message"] = "Announcement added successfully!";
+                TempData["Info"] = "Announcement added successfully!";
                 return RedirectToAction("AnnList");
             }
 
@@ -288,7 +294,7 @@ namespace ClubManagementSystem.Controllers
             // Save changes to the database
             db.SaveChanges();
 
-            TempData["Message"] = "Announcement updated successfully!";
+            TempData["Info"] = "Announcement updated successfully!";
             return RedirectToAction("AnnList");
         }
 
