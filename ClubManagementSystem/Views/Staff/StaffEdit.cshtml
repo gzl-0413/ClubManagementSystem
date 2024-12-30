@@ -6,27 +6,110 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<form asp-action="StaffEdit" method="post">
-    <input type="hidden" name="Id" value="@Model.Id" />
+<!-- Display Validation or Error Messages from ModelState -->
+@foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+{
+    <div class="alert alert-danger">@error.ErrorMessage</div>
+}
+
+<form asp-action="StaffEdit" method="post" enctype="multipart/form-data">
+    <input type="text" name="Id" value="@Model.Id" hidden />
+
+    <!-- Editable Type Dropdown -->
+    <div class="form-group">
+        <label asp-for="Type"></label>
+        <select id="Type" name="Type" class="form-control" onchange="toggleWorkTime()">
+            <option value="">Select Type</option>  <!-- No default selection -->
+            <option value="Full-Time">Full-Time</option>
+            <option value="Part-Time">Part-Time</option>
+        </select>
+    </div>
+
 
     <div class="form-group">
         <label for="Name">Name</label>
         <input type="text" class="form-control" id="Name" name="Name" value="@Model.Name" required />
+        @if (ViewData.ModelState["Name"]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger">
+                @ViewData.ModelState["Name"].Errors[0].ErrorMessage
+            </div>
+        }
     </div>
 
     <div class="form-group">
         <label for="Email">Email</label>
         <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" required />
+        @if (ViewData.ModelState["Email"]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger">
+                @ViewData.ModelState["Email"].Errors[0].ErrorMessage
+            </div>
+        }
     </div>
 
     <div class="form-group">
         <label for="Password">Password (Leave blank to keep current password)</label>
         <input type="password" class="form-control" id="Password" name="Password" />
+        @if (ViewData.ModelState["Password"]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger">
+                @ViewData.ModelState["Password"].Errors[0].ErrorMessage
+            </div>
+        }
     </div>
 
     <div class="form-group">
         <label for="ConfirmPassword">Confirm Password</label>
         <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" />
+        @if (ViewData.ModelState["ConfirmPassword"]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger">
+                @ViewData.ModelState["ConfirmPassword"].Errors[0].ErrorMessage
+            </div>
+        }
+    </div>
+
+    <!-- WorkTime Checkboxes (Conditional Visibility) -->
+    <div class="form-group" id="WorkTimeSection">
+        <label>Work Time</label>
+        @{
+            // List of all available time slots
+            var timeSlots = new List<string>
+            {
+                "9:00 AM - 10:00 AM",
+                "10:00 AM - 11:00 AM",
+                "11:00 AM - 12:00 PM",
+                "12:00 PM - 1:00 PM",
+                "1:00 PM - 2:00 PM",
+                "2:00 PM - 3:00 PM",
+                "3:00 PM - 4:00 PM",
+                "4:00 PM - 5:00 PM",
+                "5:00 PM - 6:00 PM",
+                "6:00 PM - 7:00 PM",
+                "7:00 PM - 8:00 PM",
+                "8:00 PM - 9:00 PM"
+            };
+
+            // Split the existing WorkTime field into selected time slots
+            var selectedTimeSlots = Model.WorkTime?.Split(',') ?? new string[] { };
+        }
+
+        @foreach (var timeSlot in timeSlots)
+        {
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="workTime_@timeSlot" name="WorkTime" value="@timeSlot"
+                    @(selectedTimeSlots.Contains(timeSlot) ? "checked" : "") />
+                <label class="form-check-label" for="workTime_@timeSlot">@timeSlot</label>
+            </div>
+        }
+
+        @if (ViewData.ModelState["WorkTime"]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger">
+                @ViewData.ModelState["WorkTime"].Errors[0].ErrorMessage
+            </div>
+        }
     </div>
 
     <!-- Display Current Photo -->
@@ -44,9 +127,46 @@
         }
     </div>
 
-    <!-- Hidden Photo field, no longer allows user to change it -->
+    <!-- Hidden Photo field -->
     <input type="hidden" name="PhotoURL" value="@Model.PhotoURL" />
 
     <button type="submit" class="btn btn-primary">Save Changes</button>
     <a href="@Url.Action("StaffHome", "Staff")" class="btn btn-secondary">Cancel</a>
 </form>
+
+<script>
+        window.onload = function() {
+        // Get the value of the Type from the model
+        var modelType = '@Model.Type'; // This will pass the value from Razor to JavaScript
+
+        // Find the select element
+        var typeSelect = document.getElementById('Type');
+
+        // Set the selected option based on the model value
+        if (modelType) {
+            typeSelect.value = modelType; // Set the selected option based on the model
+        }
+
+        // Call the toggleWorkTime function to set the visibility of the WorkTime section
+        toggleWorkTime();
+    };
+
+    window.onload = function() {
+        var modelType = '@Model.Type'; // Fetch the model data (Type) from the server-side Razor model
+        var typeSelect = document.getElementById('Type');
+
+        // Only set the value if the modelType is not empty
+        if (modelType) {
+            typeSelect.value = modelType;  // Set the selected option based on the model value
+        }
+
+        // Call the toggleWorkTime function to handle visibility based on the selected type
+        toggleWorkTime();
+    };
+
+
+    // Initial check to hide work time if 'Full-Time' is selected on page load
+    window.onload = toggleWorkTime;
+
+
+</script>

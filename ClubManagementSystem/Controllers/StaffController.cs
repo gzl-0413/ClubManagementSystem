@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ClubManagementSystem.Models;
-using System.Linq;
-using Microsoft.AspNetCore.Hosting;
-using System.IO;
-using System;
+using Microsoft.EntityFrameworkCore;
+using QRCoder;
+using static ClubManagementSystem.Models.StaffVM;
 
 namespace ClubManagementSystem.Controllers
 {
@@ -27,37 +25,31 @@ namespace ClubManagementSystem.Controllers
             return View(staffList);
         }
 
+        // GET: Staff/Add
         public IActionResult StaffAdd()
         {
             var model = new StaffVM.Create();
             return View(model);
         }
 
-
+        // POST: Staff/Add
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult StaffAdd(StaffVM.Create vm)
+        public IActionResult StaffAdd(StaffVM.Create vm, string[] WorkTime)
         {
             if (!ModelState.IsValid)
             {
-                // Debugging: Check if the model is valid
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine(error.ErrorMessage);  // You can log this or inspect in debug output
-                }
-
-                // Set an error message if there are validation issues
                 TempData["ErrorMessage"] = "There are validation errors. Please check the form.";
                 return View(vm);
             }
 
             try
             {
-                // Generate a unique ID for the staff member, e.g., ST1234
                 var staffCount = db.Staffs.Count();
                 var staffId = "ST" + (staffCount + 1).ToString("D4");
-                var now = DateTime.UtcNow;
                 string? photoUrl = null;
+
+                var selectedWorkTimes = string.Join(",", WorkTime);
 
                 var staff = new Staff
                 {
@@ -65,98 +57,123 @@ namespace ClubManagementSystem.Controllers
                     Email = vm.Email,
                     Hash = hp.HashPassword(vm.Password),
                     Name = vm.Name,
+                    Type = vm.Type,
+                    WorkTime = selectedWorkTimes,
                     PhotoURL = photoUrl
                 };
 
-                // Check if a photo was uploaded
                 if (vm.Photo != null)
                 {
-                    // Generate a unique file name for the uploaded photo
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(vm.Photo.FileName);
-
-                    // Set the path to save the file
                     var path = Path.Combine(en.WebRootPath, "StaffImg", fileName);
 
-                    // Save the file to the StaffImg folder
                     using (var stream = new FileStream(path, FileMode.Create))
                     {
                         vm.Photo.CopyTo(stream);
                     }
 
-                    // Store the file name in the database
-                    staff.PhotoURL = "" + fileName;
+                    staff.PhotoURL = fileName;
                 }
 
-                // Add the staff member to the database
                 db.Staffs.Add(staff);
                 db.SaveChanges();
 
-                // Set a success message to TempData
                 TempData["SuccessMessage"] = "Staff member added successfully with ID: " + staffId;
-
-                // Redirect to the StaffHome view
                 return RedirectToAction(nameof(StaffHome));
             }
             catch (Exception ex)
             {
-                // Set an error message to TempData in case of an exception
                 TempData["ErrorMessage"] = "An error occurred while adding the staff member: " + ex.Message;
+                return View(vm);
             }
-
-            // If an exception occurred, return the view with the model and error message
-            return View(vm);
         }
 
         // GET: Staff/Edit/{id}
         public IActionResult StaffEdit(string id)
         {
-            var staff = db.Staffs.Find(id);
-            if (staff == null)
+            try
             {
-                return NotFound();
-            }
-
-            var model = new StaffVM.Edit
-            {
-                Id = staff.Id,
-                Name = staff.Name,
-                Email = staff.Email,
-                PhotoURL = staff.PhotoURL
-            };
-
-            return View(model);
-        }
-
-        // POST: Staff/Edit
-        // POST: Staff/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult StaffEdit(StaffVM.Edit model)
-        {
-            if (ModelState.IsValid)
-            {
-                var staff = db.Staffs.Find(model.Id);
+                var staff = db.Staffs.Find(id);
                 if (staff == null)
                 {
+                    TempData["ErrorMessage"] = $"Staff member with ID {id} not found.";
                     return NotFound();
                 }
 
-                // Update staff details except for the photo
+                var model = new StaffVM.Edit
+                {
+                    Id = staff.Id,
+                    Name = staff.Name,
+                    Email = staff.Email,
+                    Type = staff.Type,
+                    WorkTime = staff.WorkTime,
+                    PhotoURL = staff.PhotoURL
+                };
+
+                TempData["DebugMessage"] = $"Staff data for {staff.Name} (ID: {id}) successfully loaded for editing.";
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"An error occurred while fetching staff data: {ex.Message}";
+                return View("Error");
+            }
+        }
+
+        // POST: Staff/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult StaffEdit(StaffVM.Edit model, string[] WorkTime)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    TempData["ErrorMessage"] = "There are validation errors. Please check the form.";
+                    foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        TempData["DebugMessage"] += $"Validation Error: {error.ErrorMessage}\n";
+                    }
+                    return View(model);
+                }
+
+                var staff = db.Staffs.Find(model.Id);
+                if (staff == null)
+                {
+                    TempData["ErrorMessage"] = $"Staff member with ID {model.Id} not found.";
+                    return NotFound();
+                }
+
                 staff.Name = model.Name;
                 staff.Email = model.Email;
+                staff.Type = model.Type;
+                staff.WorkTime = WorkTime != null && WorkTime.Length > 0 ? string.Join(",", WorkTime) : staff.WorkTime;
 
-                // Do not update the photo if no new photo is uploaded (as we disabled it in the form)
-                // staff.PhotoURL is not changed if no new file is provided
+                if (model.Photo != null)
+                {
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Photo.FileName);
+                    var path = Path.Combine(en.WebRootPath, "StaffImg", fileName);
+
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    {
+                        model.Photo.CopyTo(stream);
+                    }
+
+                    staff.PhotoURL = fileName;
+                }
 
                 db.Staffs.Update(staff);
                 db.SaveChanges();
 
+                TempData["SuccessMessage"] = $"Staff member {staff.Name} updated successfully.";
                 return RedirectToAction(nameof(StaffHome));
             }
-
-            return View(model);
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"An error occurred while updating the staff member: {ex.Message}";
+                return View(model);
+            }
         }
-
 
         // GET: Staff/Delete/{id}
         public IActionResult StaffDelete(string id)
@@ -171,13 +188,14 @@ namespace ClubManagementSystem.Controllers
             {
                 Id = staff.Id,
                 Name = staff.Name,
-                Email = staff.Email
+                Email = staff.Email,
+                Type = staff.Type
             };
 
             return View(model);
         }
 
-        // POST: Staff/Delete
+        // POST: Staff/DeleteConfirmed
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult StaffDeleteConfirmed(string id)
@@ -191,7 +209,32 @@ namespace ClubManagementSystem.Controllers
             db.Staffs.Remove(staff);
             db.SaveChanges();
 
+            TempData["SuccessMessage"] = "Staff member deleted successfully.";
             return RedirectToAction(nameof(StaffHome));
         }
+
+        // GET: Staff/WorkTime
+        public IActionResult StaffWorkTime()
+        {
+            try
+            {
+                var staffList = db.Staffs.ToList();
+                var model = staffList.Select(staff => new StaffVM.WorkTimeViewModel
+                {
+                    Id = staff.Id,
+                    Name = staff.Name,
+                    Type = staff.Type,
+                    WorkTime = staff.WorkTime?.Split(',').ToList()
+                }).ToList();
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"An error occurred while fetching staff data: {ex.Message}";
+                return View("Error");
+            }
+        }
+
     }
 }

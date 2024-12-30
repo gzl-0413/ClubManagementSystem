@@ -9,14 +9,20 @@
 <div class="mb-3">
     <a href="@Url.Action("StaffAdd", "Staff")" class="btn btn-primary">Add New Staff</a>
 </div>
+<div class="mb-3">
+    <a href="@Url.Action("StaffWorkTime", "Staff")" class="btn btn-info">View All Staff Work Times</a>
+</div>
+<div class="mb-3">
+    <a href="@Url.Action("AllStaffAttendance", "Staff")" class="btn btn-info">Staff Attendance Management</a>
+</div>
 
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Photo</th>
-            <th>Actions</th>
+            <td>Name</td>
+            <td>Email</td>
+            <td>Photo</td>
+            <td>Actions</td>
         </tr>
     </thead>
     <tbody>

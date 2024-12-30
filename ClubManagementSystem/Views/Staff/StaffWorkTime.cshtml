@@ -1,0 +1,70 @@
+﻿@model List<ClubManagementSystem.Models.StaffVM.WorkTimeViewModel>
+
+@{
+    ViewData["Title"] = "All Staff Work Times";
+}
+
+<h2>All Staff Work Times</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <td>Staff Name</td>
+            <td>Staff Type</td> <!-- Add column for Staff Type -->
+            <td>Work Time</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var staff in Model)
+        {
+            <tr>
+                <td>@staff.Name</td>
+                <td>@staff.Type</td> <!-- Display the Staff Type (Full-Time / Part-Time) -->
+                <td>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <td>Time Slot</td>
+                                <td>Status</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var timeSlot in new List<string>
+                        {
+                        "9:00 AM - 10:00 AM",
+                        "10:00 AM - 11:00 AM",
+                        "11:00 AM - 12:00 PM",
+                        "12:00 PM - 1:00 PM",
+                        "1:00 PM - 2:00 PM",
+                        "2:00 PM - 3:00 PM",
+                        "3:00 PM - 4:00 PM",
+                        "4:00 PM - 5:00 PM",
+                        "5:00 PM - 6:00 PM",
+                        "6:00 PM - 7:00 PM",
+                        "7:00 PM - 8:00 PM",
+                        "8:00 PM - 9:00 PM"
+                        })
+                            {
+                                <tr>
+                                    <td>@timeSlot</td>
+                                    <td style="background-color: @(staff.Type == "Full-Time" || staff.WorkTime.Contains(timeSlot) ? "green" : "white");">
+                                        @if (staff.Type == "Full-Time" || staff.WorkTime.Contains(timeSlot))
+                                        {
+                                            <span class="text-white">Worked</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not Worked</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("StaffHome", "Staff")" class="btn btn-secondary">Back to Staff List</a>
