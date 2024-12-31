@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QRCoder;
 using static ClubManagementSystem.Models.StaffVM;
 
 namespace ClubManagementSystem.Controllers
@@ -58,7 +57,6 @@ namespace ClubManagementSystem.Controllers
                     Hash = hp.HashPassword(vm.Password),
                     Name = vm.Name,
                     Type = vm.Type,
-                    WorkTime = selectedWorkTimes,
                     PhotoURL = photoUrl
                 };
 
@@ -106,7 +104,6 @@ namespace ClubManagementSystem.Controllers
                     Name = staff.Name,
                     Email = staff.Email,
                     Type = staff.Type,
-                    WorkTime = staff.WorkTime,
                     PhotoURL = staff.PhotoURL
                 };
 
@@ -147,7 +144,6 @@ namespace ClubManagementSystem.Controllers
                 staff.Name = model.Name;
                 staff.Email = model.Email;
                 staff.Type = model.Type;
-                staff.WorkTime = WorkTime != null && WorkTime.Length > 0 ? string.Join(",", WorkTime) : staff.WorkTime;
 
                 if (model.Photo != null)
                 {
@@ -224,7 +220,6 @@ namespace ClubManagementSystem.Controllers
                     Id = staff.Id,
                     Name = staff.Name,
                     Type = staff.Type,
-                    WorkTime = staff.WorkTime?.Split(',').ToList()
                 }).ToList();
 
                 return View(model);

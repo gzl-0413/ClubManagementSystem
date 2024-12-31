@@ -17,7 +17,7 @@ namespace ClubManagementSystem.Controllers
 
         // MEMBER PART------------------------------------------------------------------
         // GET: FacilityBooking/ViewMemberSlots
-        [Authorize(Roles = "Member,Premium")]
+        [Authorize(Roles = "Member")]
         public async Task<IActionResult> ViewMemberSlots(DateTime? date, int? categoryId)
         {
             DateTime selectedDate = date.HasValue ? date.Value
@@ -45,7 +45,7 @@ namespace ClubManagementSystem.Controllers
         }
 
         // GET: FacilityBooking/ViewBookingHistory
-        [Authorize(Roles = "Member,Premium")]
+        [Authorize(Roles = "Member")]
         public async Task<IActionResult> ViewBookingHistory()
         {
             var email = User.Identity.Name;  // Get the logged-in user's email
@@ -65,7 +65,7 @@ namespace ClubManagementSystem.Controllers
         }
 
         // GET: FacilityBooking/CreateMemberBooking
-        [Authorize(Roles = "Member,Premium")]
+        [Authorize(Roles = "Member")]
         public IActionResult CreateMemberBooking()
         {
             ViewBag.Facilities = db.Facility.Where(f => f.IsActive).ToList();
@@ -74,7 +74,7 @@ namespace ClubManagementSystem.Controllers
 
         // POST: FacilityBooking/CreateMemberBooking
         [HttpPost]
-        [Authorize(Roles = "Member,Premium")]
+        [Authorize(Roles = "Member")]
         [HttpPost]
         public async Task<IActionResult> CreateMemberBooking(MemberBookingViewModel booking)
         {
@@ -125,7 +125,7 @@ namespace ClubManagementSystem.Controllers
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == memberEmail);
 
             // Calculate fee
-            decimal fee = user.Role == "premium" ? 0 : (decimal)(booking.EndTime - booking.StartTime).TotalHours * facility.Price;
+            decimal fee = (decimal)(booking.EndTime - booking.StartTime).TotalHours * facility.Price;
 
             var newBooking = new FacBooking
             {
@@ -149,7 +149,7 @@ namespace ClubManagementSystem.Controllers
         }
 
         // GET: FacilityBooking/BookingConfirmation
-        [Authorize(Roles = "Member,Premium")]
+        [Authorize(Roles = "Member")]
         public async Task<IActionResult> BookingConfirmation(int id)
         {
             var booking = await db.FacBooking
@@ -174,7 +174,7 @@ namespace ClubManagementSystem.Controllers
             return View(viewModel);
         }
 
-        [Authorize(Roles = "Member,Premium")]
+        [Authorize(Roles = "Member")]
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(int id)
         {
@@ -227,10 +227,6 @@ namespace ClubManagementSystem.Controllers
                         // Normal fee calculation for members
                         var normalFee = (decimal)duration * facility.Price;
                         return Json(new { fee = normalFee });
-
-                    case "premium":
-                        // Fee is zero for premium and coach
-                        return Json(new { fee = 0 });
 
                     case "staff":
                     case "admin":
