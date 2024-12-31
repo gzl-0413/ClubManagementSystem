@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ClubManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class New : Migration
+    public partial class _1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace ClubManagementSystem.Migrations
                 name: "Announcements",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Title = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Photo = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
@@ -30,16 +30,37 @@ namespace ClubManagementSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventCategories",
+                name: "Coaches",
+                columns: table => new
+                {
+                    CoachID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Photo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Coaches", x => x.CoachID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Equipment",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Stock = table.Column<int>(type: "int", nullable: false),
+                    DepositAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    isDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventCategories", x => x.Id);
+                    table.PrimaryKey("PK_Equipment", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,7 +93,7 @@ namespace ClubManagementSystem.Migrations
                     ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActivated = table.Column<bool>(type: "bit", nullable: false),
                     ActivationCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
                     Member_PhotoURL = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     PhotoURL = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
@@ -83,35 +104,6 @@ namespace ClubManagementSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Event",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Venue = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StartDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    EndDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    StartTime = table.Column<TimeOnly>(type: "time", nullable: false),
-                    EndTime = table.Column<TimeOnly>(type: "time", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EventCategoryId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Event", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Event_EventCategories_EventCategoryId",
-                        column: x => x.EventCategoryId,
-                        principalTable: "EventCategories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Facility",
                 columns: table => new
                 {
@@ -119,8 +111,8 @@ namespace ClubManagementSystem.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Capacity = table.Column<int>(type: "int", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -138,47 +130,31 @@ namespace ClubManagementSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventPricing",
+                name: "FacBooking",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Tier = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    EventId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EventPricing", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_EventPricing_Event_EventId",
-                        column: x => x.EventId,
-                        principalTable: "Event",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FacTimeSlot",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Date = table.Column<DateOnly>(type: "date", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BookingDate = table.Column<DateOnly>(type: "date", nullable: false),
                     StartTime = table.Column<TimeOnly>(type: "time", nullable: false),
                     EndTime = table.Column<TimeOnly>(type: "time", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FeePaid = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    isPaid = table.Column<bool>(type: "bit", nullable: false),
+                    PayBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    isDeleted = table.Column<bool>(type: "bit", nullable: false),
                     FacilityId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FacTimeSlot", x => x.Id);
+                    table.PrimaryKey("PK_FacBooking", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FacTimeSlot_Facility_FacilityId",
+                        name: "FK_FacBooking_Facility_FacilityId",
                         column: x => x.FacilityId,
                         principalTable: "Facility",
                         principalColumn: "Id",
@@ -186,55 +162,54 @@ namespace ClubManagementSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FacBooking",
+                name: "EquipmentRental",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BookingDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    StartTime = table.Column<TimeOnly>(type: "time", nullable: false),
-                    EndTime = table.Column<TimeOnly>(type: "time", nullable: false),
-                    FeePaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    FacTimeSlotId = table.Column<int>(type: "int", nullable: false)
+                    FacBookingId = table.Column<int>(type: "int", nullable: false),
+                    EquipmentId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    DepositPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RentedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReturnedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FacBooking", x => x.Id);
+                    table.PrimaryKey("PK_EquipmentRental", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FacBooking_FacTimeSlot_FacTimeSlotId",
-                        column: x => x.FacTimeSlotId,
-                        principalTable: "FacTimeSlot",
+                        name: "FK_EquipmentRental_Equipment_EquipmentId",
+                        column: x => x.EquipmentId,
+                        principalTable: "Equipment",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EquipmentRental_FacBooking_FacBookingId",
+                        column: x => x.FacBookingId,
+                        principalTable: "FacBooking",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Event_EventCategoryId",
-                table: "Event",
-                column: "EventCategoryId");
+                name: "IX_EquipmentRental_EquipmentId",
+                table: "EquipmentRental",
+                column: "EquipmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventPricing_EventId",
-                table: "EventPricing",
-                column: "EventId");
+                name: "IX_EquipmentRental_FacBookingId",
+                table: "EquipmentRental",
+                column: "FacBookingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FacBooking_FacTimeSlotId",
+                name: "IX_FacBooking_FacilityId",
                 table: "FacBooking",
-                column: "FacTimeSlotId");
+                column: "FacilityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Facility_FacilityCategoriesId",
                 table: "Facility",
                 column: "FacilityCategoriesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FacTimeSlot_FacilityId",
-                table: "FacTimeSlot",
-                column: "FacilityId");
         }
 
         /// <inheritdoc />
@@ -244,22 +219,19 @@ namespace ClubManagementSystem.Migrations
                 name: "Announcements");
 
             migrationBuilder.DropTable(
-                name: "EventPricing");
+                name: "Coaches");
 
             migrationBuilder.DropTable(
-                name: "FacBooking");
+                name: "EquipmentRental");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Event");
+                name: "Equipment");
 
             migrationBuilder.DropTable(
-                name: "FacTimeSlot");
-
-            migrationBuilder.DropTable(
-                name: "EventCategories");
+                name: "FacBooking");
 
             migrationBuilder.DropTable(
                 name: "Facility");

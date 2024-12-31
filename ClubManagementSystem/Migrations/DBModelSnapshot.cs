@@ -22,30 +22,56 @@ namespace ClubManagementSystem.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ClubManagementSystem.Models.Event", b =>
+            modelBuilder.Entity("ClubManagementSystem.Models.Announcement", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("AdminEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LikeUsers")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Photo")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Announcements");
+                });
+
+            modelBuilder.Entity("ClubManagementSystem.Models.Coach", b =>
+                {
+                    b.Property<string>("CoachID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date");
-
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("EventCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Image")
+                    b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ModifiedAt")
@@ -53,42 +79,54 @@ namespace ClubManagementSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time");
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
-                    b.Property<string>("Venue")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Photo")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CoachID");
 
-                    b.HasIndex("EventCategoryId");
-
-                    b.ToTable("Event");
+                    b.ToTable("Coaches");
                 });
 
-            modelBuilder.Entity("ClubManagementSystem.Models.EventCategories", b =>
+            modelBuilder.Entity("ClubManagementSystem.Models.Equipment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("DepositAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
-                    b.ToTable("EventCategories");
+                    b.ToTable("Equipment");
                 });
 
-            modelBuilder.Entity("ClubManagementSystem.Models.EventPricing", b =>
+            modelBuilder.Entity("ClubManagementSystem.Models.EquipmentRental", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -96,21 +134,31 @@ namespace ClubManagementSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("DepositPaid")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Tier")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("EquipmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacBookingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RentedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ReturnedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventId");
+                    b.HasIndex("EquipmentId");
 
-                    b.ToTable("EventPricing");
+                    b.HasIndex("FacBookingId");
+
+                    b.ToTable("EquipmentRental");
                 });
 
             modelBuilder.Entity("ClubManagementSystem.Models.FacBooking", b =>
@@ -161,6 +209,9 @@ namespace ClubManagementSystem.Migrations
 
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");
+
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("isPaid")
                         .HasColumnType("bit");
@@ -213,36 +264,6 @@ namespace ClubManagementSystem.Migrations
                     b.ToTable("Facility");
                 });
 
-            modelBuilder.Entity("ClubManagementSystem.Models.FacilityBookingCapacity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateOnly>("BookingDate")
-                        .HasColumnType("date");
-
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("FacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RemainingCapacity")
-                        .HasColumnType("int");
-
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FacilityId");
-
-                    b.ToTable("FacilityBookingCapacity");
-                });
-
             modelBuilder.Entity("ClubManagementSystem.Models.FacilityCategories", b =>
                 {
                     b.Property<int>("Id")
@@ -280,6 +301,10 @@ namespace ClubManagementSystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("ActivationCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -289,13 +314,16 @@ namespace ClubManagementSystem.Migrations
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<string>("Hash")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<bool>("IsActivated")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
@@ -360,26 +388,30 @@ namespace ClubManagementSystem.Migrations
                     b.HasDiscriminator().HasValue("Staff");
                 });
 
-            modelBuilder.Entity("ClubManagementSystem.Models.Event", b =>
+            modelBuilder.Entity("ClubManagementSystem.Models.SuperAdmin", b =>
                 {
-                    b.HasOne("ClubManagementSystem.Models.EventCategories", "EventCategory")
-                        .WithMany("Event")
-                        .HasForeignKey("EventCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasBaseType("ClubManagementSystem.Models.User");
 
-                    b.Navigation("EventCategory");
+                    b.HasDiscriminator().HasValue("SuperAdmin");
                 });
 
-            modelBuilder.Entity("ClubManagementSystem.Models.EventPricing", b =>
+            modelBuilder.Entity("ClubManagementSystem.Models.EquipmentRental", b =>
                 {
-                    b.HasOne("ClubManagementSystem.Models.Event", "Event")
-                        .WithMany("EventPricing")
-                        .HasForeignKey("EventId")
+                    b.HasOne("ClubManagementSystem.Models.Equipment", "Equipment")
+                        .WithMany()
+                        .HasForeignKey("EquipmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Event");
+                    b.HasOne("ClubManagementSystem.Models.FacBooking", "FacBooking")
+                        .WithMany()
+                        .HasForeignKey("FacBookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Equipment");
+
+                    b.Navigation("FacBooking");
                 });
 
             modelBuilder.Entity("ClubManagementSystem.Models.FacBooking", b =>
@@ -402,27 +434,6 @@ namespace ClubManagementSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("FacilityCategories");
-                });
-
-            modelBuilder.Entity("ClubManagementSystem.Models.FacilityBookingCapacity", b =>
-                {
-                    b.HasOne("ClubManagementSystem.Models.Facility", "Facility")
-                        .WithMany()
-                        .HasForeignKey("FacilityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Facility");
-                });
-
-            modelBuilder.Entity("ClubManagementSystem.Models.Event", b =>
-                {
-                    b.Navigation("EventPricing");
-                });
-
-            modelBuilder.Entity("ClubManagementSystem.Models.EventCategories", b =>
-                {
-                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("ClubManagementSystem.Models.Facility", b =>
