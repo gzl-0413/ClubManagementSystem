@@ -1,0 +1,26 @@
+﻿@model FacilityBookingHistoryViewModel
+
+<h2>Your Booking History</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <td>Facility</td>
+            <td>Date</td>
+            <td>Start Time</td>
+            <td>End Time</td>
+            <td>Fee</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in Model.Bookings)
+        {
+            <tr>
+                <td>@booking.Facility.Name</td>
+                <td>@booking.BookingDate</td>
+                <td>@booking.StartTime</td>
+                <td>@booking.EndTime</td>
+                <td>@booking.FeePaid?.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>

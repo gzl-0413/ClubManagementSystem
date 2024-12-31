@@ -1,0 +1,35 @@
+﻿@model List<ClubManagementSystem.Models.EquipmentViewModel>
+@Html.Partial("_LowStockNotification")
+
+@{
+    ViewBag.Title = "Equipment";
+}
+
+<a href="/Equipment/CreateEquipment">Create New Equipment</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>Name</td>
+            <td>Stock</td>
+            <td>Deposit Amount</td>
+            <td>Actions</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Stock</td>
+                <td>@item.DepositAmount</td>
+                <td>
+                    <button data-get="/Equipment/EditEquipment/@item.Id">Update</button>
+                    <button data-post="/Equipment/DeleteEquipment/@item.Id">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

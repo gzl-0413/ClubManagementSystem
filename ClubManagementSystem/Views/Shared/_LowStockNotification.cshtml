@@ -1,0 +1,16 @@
+﻿@model List<ClubManagementSystem.Models.EquipmentViewModel>
+
+@if (Model != null && Model.Any())
+{
+    <div class="alert alert-warning">
+        <p>The following equipment items are low in stock:</p>
+        <ul>
+            @foreach (var item in Model)
+            {
+                @if(item.Stock < 5){
+                    <li>@item.Name (Stock: @item.Stock)</li>
+                }
+            }
+        </ul>
+    </div>
+}

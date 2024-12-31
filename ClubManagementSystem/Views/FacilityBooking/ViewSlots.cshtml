@@ -23,6 +23,7 @@
         </div>
         <div><button type="submit">Search</button></div>
     </div>
+    <input type="hidden" id="currentViewMode" name="viewMode" value="@ViewBag.ViewMode" />
 </form>
 
 <div>
@@ -32,6 +33,11 @@
 
 <div id="chartMode">
     <h3>Availability Chart</h3>
+    <div>
+        <span class="badge bg-secondary">Closed</span>
+        <span class="badge bg-primary">Booked</span>
+        <span class="badge bg-success">Available</span>
+    </div>
     <table class="table table-bordered mt-4">
         <thead>
             <tr>
@@ -53,20 +59,13 @@
                                 && b.StartTime.Hour <= hour && 
                                 b.EndTime.Hour > hour);
                         var isClosed = !facility.IsActive;
-                        var isPast = DateTime.Now.Hour > hour && Model.SelectedDate.Date == DateTime.Today;
-                        var hasCapacityForDate = Model.Capacities != null && Model.Capacities.Any(c =>
-                        c.FacilityId == facility.Id &&
-                        c.BookingDate ==  DateOnly.FromDateTime(Model.SelectedDate));
-                        var isClass = hasCapacityForDate && Model.Capacities.Any(c => c.FacilityId == facility.Id
-                && c.isClass == true
-                && hour >= c.StartTime.Hour
-                && hour < c.EndTime.Hour);
+                        var isPast = (Model.SelectedDate.Date == DateTime.Today && DateTime.Now.Hour > hour) || (Model.SelectedDate.Date < DateTime.Today);
             
             <td class="@(isClosed ? "bg-secondary" :
-                       (isClass ? "bg-danger" :
                        (isBooked ? "bg-primary" :
-                       (!hasCapacityForDate ? "bg-white" :
-                       (isPast ? "bg-white" : "bg-success")))))">
+                       (isPast ? "bg-white" : "bg-success")))"
+                       aria-label="@(isClosed ? "Closed" :
+                       (isBooked ? "Booked" : "Available"))">
             </td>
                     }
                 </tr>
@@ -77,6 +76,10 @@
 
 <div id="tableMode" style="display:none;">
     <h3>Detailed Booking Table</h3>
+    @if (!Model.Bookings.Any())
+    {
+        <p class="text-danger">No bookings found for the selected criteria.</p>
+    }
     <table class="table table-striped mt-4">
         <thead>
             <tr>
@@ -103,7 +106,8 @@
                     <td>@booking.EndTime</td>
                     <td>@booking.FeePaid?.ToString("C")</td>
                     <td>@booking.PayBy</td>
-                    <td>
+					<td>
+                        <button data-get="/FacilityBooking/EditBooking/@booking.Id">Update</button>
                         <button data-post="/FacilityBooking/CancelBooking/@booking.Id">Cancel</button>
                     </td>
                 </tr>
@@ -114,15 +118,23 @@
 
 <script>
     function toggleView(mode) {
-        const chartMode = document.getElementById('chartMode');
-        const tableMode = document.getElementById('tableMode');
+           const chartMode = document.getElementById('chartMode');
+           const tableMode = document.getElementById('tableMode');
+           const viewModeInput = document.getElementById('currentViewMode');
 
-        if (mode === 'chart') {
-            chartMode.style.display = 'block';
-            tableMode.style.display = 'none';
-        } else {
-            chartMode.style.display = 'none';
-            tableMode.style.display = 'block';
-        }
-    }
+           if (mode === 'chart') {
+               chartMode.style.display = 'block';
+               tableMode.style.display = 'none';
+               viewModeInput.value = 'chart';
+           } else {
+               chartMode.style.display = 'none';
+               tableMode.style.display = 'block';
+               viewModeInput.value = 'table';
+           }
+       }
+
+       document.addEventListener("DOMContentLoaded", function () {
+           const viewMode = new URLSearchParams(window.location.search).get('viewMode') || '@ViewBag.ViewMode';
+           toggleView(viewMode);
+       });
 </script>

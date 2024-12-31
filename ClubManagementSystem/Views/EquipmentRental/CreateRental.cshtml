@@ -1,0 +1,67 @@
+﻿@model EquipmentRentalViewModel
+
+@{
+    ViewBag.Title = "Create Equipment Rental";
+}
+<form method="post" class="form">
+    <div asp-validation-summary="ModelOnly"></div>
+
+        <label asp-for="FacBookingId">Facility Booking</label>
+        <select asp-for="FacBookingId" class="form-control" asp-items="ViewBag.FacilityBookings">
+            <option value="">Select Facility Booking</option>
+        </select>
+        <span asp-validation-for="FacBookingId"></span>
+
+        <label asp-for="EquipmentId">Equipment</label>
+        <select asp-for="EquipmentId" class="form-control">
+            <option value="">Select Equipment</option>
+        @if (ViewBag.Equipment != null)
+        {
+            @foreach (var equipment in (List<EquipmentViewModel>)ViewBag.Equipment)
+            {
+                <option value="@equipment.Id" data-deposit="@equipment.DepositAmount">
+                    @equipment.Name
+                </option>
+            }
+        }
+        </select>
+        <span asp-validation-for="EquipmentId"></span>
+
+        <label asp-for="Quantity">Quantity</label>
+        <input asp-for="Quantity" class="form-control" type="number" min="1" />
+        <span asp-validation-for="Quantity"></span>
+
+        <label asp-for="DepositPaid">Total Deposit</label>
+        <input asp-for="DepositPaid" class="form-control" type="number" min="0" id="DepositPaid" readonly />
+        <span asp-validation-for="DepositPaid"></span>
+
+    <div>
+        <button type="submit">Create Rental</button>
+        <button type="reset">Reset</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Trigger calculation when quantity or equipment changes
+            $('#Quantity, #EquipmentId').on('input change', function () {
+                calculateDeposit();
+            });
+
+            function calculateDeposit() {
+                var selectedOption = $('#EquipmentId option:selected');
+                var depositAmount = selectedOption.data('deposit');
+                var quantity = parseInt($('#Quantity').val());
+
+                if (depositAmount && quantity && quantity > 0) {
+                    var totalDeposit = depositAmount * quantity;
+                    $('#DepositPaid').val(totalDeposit);
+                } else {
+                    $('#DepositPaid').val(0);  // Reset if not valid
+                }
+            }
+        });
+    </script>
+}

@@ -27,6 +27,7 @@ namespace ClubManagementSystem.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult CoachAdminHome(string name, int page = 1)
         {
+            // Fetch all coaches
             IQueryable<Coach> coaches = db.Coaches.AsQueryable();
 
             if (!string.IsNullOrEmpty(name))
@@ -34,11 +35,13 @@ namespace ClubManagementSystem.Controllers
                 coaches = coaches.Where(c => c.Name.Contains(name) || c.Email.Contains(name));
             }
 
-            var pagedCoaches = coaches.ToPagedList(page, 10);  // 10 coaches per page
+            // Return all coaches without pagination
+            var coachList = coaches.ToList();
             ViewBag.Name = name;
 
-            return View(pagedCoaches);
+            return View(coachList);
         }
+
 
 
 
@@ -132,103 +135,110 @@ namespace ClubManagementSystem.Controllers
         }
 
 
-        // EditCoach: Display form to edit an existing coach
+        // Display the Edit Coach form
         public IActionResult EditCoach(string id)
         {
+            // Fetch the coach using the ID
             var coach = db.Coaches.FirstOrDefault(c => c.CoachID == id);
             if (coach == null)
             {
-                return NotFound();
+                TempData["Error"] = "Coach not found.";
+                return RedirectToAction("CoachAdminHome"); // Redirect if coach not found
             }
 
+            // Populate the ViewModel with coach details
             var vm = new UpdateCoachProfileVM
             {
                 Id = coach.CoachID,
                 Name = coach.Name,
                 PhoneNumber = coach.PhoneNumber,
-                Email = coach.Email,  // Include Email for editing
-                Photo = coach.Photo   // Include Photo URL (for display/editing)
+                Email = coach.Email,
+                Photo = coach.Photo // Include current photo for display
             };
 
             return View(vm);
         }
 
-
+        // Handle the submission of the Edit Coach form
         [HttpPost]
         public async Task<IActionResult> EditCoach(UpdateCoachProfileVM vm, IFormFile Photo)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var coach = db.Coaches.FirstOrDefault(c => c.CoachID == vm.Id);
-                if (coach != null)
-                {
-                    string photoPath = coach.Photo;
-
-                    // Validate and handle photo upload
-                    if (Photo != null)
-                    {
-                        var err = hp.ValidatePhoto(Photo);  // Validate the photo
-                        if (!string.IsNullOrEmpty(err))
-                        {
-                            ModelState.AddModelError("Photo", err);  // Add error if photo validation fails
-                            return View(vm);
-                        }
-
-                        // Save photo using helper method
-                        photoPath = hp.SavePhoto(Photo, "coaches");
-                    }
-
-                    // Update coach's details, including Email and Photo
-                    coach.Name = vm.Name;
-                    coach.PhoneNumber = vm.PhoneNumber;
-                    coach.Email = vm.Email;  // Email is now editable
-                    coach.Photo = photoPath;
-                    coach.ModifiedAt = DateTime.Now;
-
-                    // Save the changes
-                    db.SaveChanges();
-
-                    TempData["Info"] = "Coach profile updated successfully.";
-                    return RedirectToAction("CoachPage");
-                }
-                else
-                {
-                    TempData["Error"] = "Coach not found.";
-                }
+                return View(vm); // Return form with validation errors
             }
-            return View(vm);
+
+            // Fetch the coach record
+            var coach = db.Coaches.FirstOrDefault(c => c.CoachID == vm.Id);
+            if (coach == null)
+            {
+                TempData["Error"] = "Coach not found.";
+                return RedirectToAction("CoachAdminHome"); // Redirect if coach not found
+            }
+
+            string photoPath = coach.Photo; // Retain existing photo path
+
+            // Handle photo upload
+            if (Photo != null)
+            {
+                var err = hp.ValidatePhoto(Photo); // Validate the uploaded photo
+                if (!string.IsNullOrEmpty(err))
+                {
+                    ModelState.AddModelError("Photo", err); // Add validation error
+                    return View(vm);
+                }
+
+                // Save the new photo and update the path
+                photoPath = hp.SavePhoto(Photo, "coaches");
+            }
+
+            // Update coach properties
+            coach.Name = vm.Name;
+            coach.PhoneNumber = vm.PhoneNumber;
+            coach.Email = vm.Email;
+            coach.Photo = photoPath; // Update the photo path
+            coach.ModifiedAt = DateTime.Now; // Update modification timestamp
+
+            // Save changes to the database
+            await db.SaveChangesAsync();
+
+            TempData["Info"] = "Coach profile updated successfully.";
+            return RedirectToAction("CoachAdminHome"); // Redirect to Admin Home after update
         }
 
-
-
-        [HttpPost]
+        // GET method to show the confirmation page
         public IActionResult DeleteCoach(string id)
         {
-            var coach = db.Coaches.FirstOrDefault(c => c.CoachID == id);
+            var coach = db.Coaches.Find(id);
             if (coach != null)
             {
-                db.Coaches.Remove(coach);
-                db.SaveChanges();
-                TempData["Info"] = "Coach deleted successfully.";
+                return View(coach); // Pass the coach data to the confirmation view
             }
             else
             {
                 TempData["Error"] = "Coach not found.";
+                return RedirectToAction("CoachAdminHome"); // Redirect back to the main page if coach not found
             }
-
-            return RedirectToAction("CoachPage");
         }
 
-        // CoachProfile: Display a specific coach's profile
-        public async Task<IActionResult> CoachProfile(string id)
+        // POST method to handle the deletion
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteCoachConfirmed(string id)
         {
-            var coach = await db.Coaches.FirstOrDefaultAsync(c => c.CoachID == id);
-            if (coach == null)
+            var coach = db.Coaches.Find(id);
+            if (coach != null)
             {
-                return NotFound();
+                db.Coaches.Remove(coach);
+                db.SaveChanges();
+                TempData["Success"] = "Coach deleted successfully.";
+                return RedirectToAction("CoachAdminHome"); // Redirect to the admin dashboard after deletion
             }
-
-            return View(coach);
+            else
+            {
+                TempData["Error"] = "Coach not found.";
+                return RedirectToAction("CoachAdminHome");
+            }
         }
     }
-}
+    }

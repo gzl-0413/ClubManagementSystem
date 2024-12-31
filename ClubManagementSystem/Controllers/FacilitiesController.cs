@@ -1,4 +1,5 @@
 ﻿using ClubManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,35 @@ namespace ClubManagementSystem.Controllers
             this.db = db;
             this.en = en;
         }
+
+        // MEMBER PART
+        public async Task<IActionResult> ViewFacilities(int? categoryId)
+        {
+            var facilities = db.Facility
+                .Include(f => f.FacilityCategories)
+                .Where(f => f.IsActive)
+                .Select(f => new FacilityViewModel
+                {
+                    Id = f.Id,
+                    Name = f.Name,
+                    Description = f.Description,
+                    Image = f.Image,  // Store directly from DB
+                    Price = f.Price,
+                    FacilityCategoriesId = f.FacilityCategoriesId               
+                });
+
+            if (categoryId.HasValue)
+            {
+                facilities = facilities.Where(f => f.FacilityCategoriesId == categoryId);
+            }
+
+            ViewBag.Categories = new SelectList(db.FacilityCategories, "Id", "FacCategoryName");
+
+            return View(await facilities.ToListAsync());
+        }
+
+        // ADMIN PART
+        [Authorize(Roles = "Admin,Superadmin")]
 
         // GET: Facilities/Facilities
         public IActionResult Facilities()
@@ -39,6 +69,7 @@ namespace ClubManagementSystem.Controllers
             return View(facilities);
         }
 
+        [Authorize(Roles = "Admin,Superadmin")]
         // GET: Facilities/CreateFacility
         public IActionResult CreateFacility()
         {
@@ -46,6 +77,7 @@ namespace ClubManagementSystem.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin,Superadmin")]
         // POST: Facilities/CreateFacility
         [HttpPost]
         public IActionResult CreateFacility(FacilityViewModel vm, List<IFormFile> Image)
@@ -117,7 +149,7 @@ namespace ClubManagementSystem.Controllers
             return View(vm);
         }
 
-
+        [Authorize(Roles = "Admin,Superadmin")]
         // GET: Facilities/UpdateFacilities
         public IActionResult UpdateFacilities(int id)
         {
@@ -149,6 +181,7 @@ namespace ClubManagementSystem.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Admin,Superadmin")]
         // POST: Facilities/UpdateFacilities
         [HttpPost]
         public IActionResult UpdateFacilities(FacilityViewModel vm, List<IFormFile> Image, string[] DeleteImages)
@@ -237,6 +270,7 @@ namespace ClubManagementSystem.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Admin,Superadmin")]
         // POST: Facilities/DeleteFacilities
         [HttpPost]
         public IActionResult DeleteFacilities(int id)
@@ -247,6 +281,14 @@ namespace ClubManagementSystem.Controllers
             {
                 try
                 {
+                    bool hasBookings = db.FacBooking.Any(b => b.FacilityId == id);
+
+                    if (hasBookings)
+                    {
+                        TempData["Info"] = "Facility cannot be deleted because it has active bookings.";
+                        return Redirect(Request.Headers.Referer.ToString());
+                    }
+
                     // Check if the facility has an image
                     if (!string.IsNullOrEmpty(f.Image))
                     {
@@ -281,6 +323,7 @@ namespace ClubManagementSystem.Controllers
             return Redirect(Request.Headers.Referer.ToString());
         }
 
+        [Authorize(Roles = "Admin,Superadmin")]
         // POST: FacilityCategories/DeleteManyFacilityCategories
         [HttpPost]
         public IActionResult DeleteManyFacilities(int[] ids)
@@ -292,6 +335,16 @@ namespace ClubManagementSystem.Controllers
                     .Where(f => ids.Contains(f.Id))
                     .ToList();
 
+                var facilitiesWithBookings = facilities
+                .Where(f => db.FacBooking.Any(b => b.FacilityId == f.Id))
+                .Select(f => f.Name)
+                .ToList();
+
+                if (facilitiesWithBookings.Any())
+                {
+                    TempData["Info"] = $"Cannot delete facilities with active bookings.";
+                    return RedirectToAction("Facilities");
+                }
                 foreach (var facility in facilities)
                 {
                     if (!string.IsNullOrEmpty(facility.Image))

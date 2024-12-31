@@ -1,0 +1,21 @@
+﻿@model BookingConfirmationViewModel
+@{
+    ViewBag.Title = "Booking Confirmation";
+}
+
+<p>Facility: @Model.Facility.Name</p>
+<p>Date: @Model.BookingDate</p>
+<p>Time: @Model.StartTime - @Model.EndTime</p>
+<p>Total Fee: @Model.Fee?.ToString("C")</p>
+
+@if (Model.Fee > 0)
+{
+        <form method="post" asp-action="ConfirmBooking">
+            <input type="hidden" name="id" value="@Model.Facility.Id" />
+            <button type="submit">Confirm</button>
+        </form>
+}
+else
+{
+        <p>This booking is free for premium members.</p>
+}

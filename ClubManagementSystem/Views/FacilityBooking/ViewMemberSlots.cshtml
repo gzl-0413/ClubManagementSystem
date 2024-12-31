@@ -48,20 +48,12 @@
                         && b.StartTime.Hour <= hour &&
                         b.EndTime.Hour > hour);
                         var isClosed = !facility.IsActive;
-                        var isPast = DateTime.Now.Hour > hour && Model.SelectedDate.Date == DateTime.Today;
-                        var hasCapacityForDate = Model.Capacities != null && Model.Capacities.Any(c =>
-                        c.FacilityId == facility.Id &&
-                        c.BookingDate == DateOnly.FromDateTime(Model.SelectedDate));
-                        var isClass = hasCapacityForDate && Model.Capacities.Any(c => c.FacilityId == facility.Id
-                        && c.isClass == true
-                        && hour >= c.StartTime.Hour
-                        && hour < c.EndTime.Hour);
+                        var isPast = (Model.SelectedDate.Date == DateTime.Today && DateTime.Now.Hour > hour) || (Model.SelectedDate.Date < DateTime.Today);
+
 
                         <td class="@(isClosed ? "bg-secondary" :
-                       (isClass ? "bg-danger" :
                        (isBooked ? "bg-primary" :
-                       (!hasCapacityForDate ? "bg-white" :
-                       (isPast ? "bg-white" : "bg-success")))))">
+                       (isPast ? "bg-white" : "bg-success")))">
                         </td>
                     }
                 </tr>
@@ -69,3 +61,4 @@
         </tbody>
     </table>
 </div>
+

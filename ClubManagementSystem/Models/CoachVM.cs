@@ -58,8 +58,6 @@ namespace ClubManagementSystem.Models
         public IFormFile Photo { get; set; }
     }
 
-
-    // ViewModel for updating coach profile
     public class UpdateCoachProfileVM
     {
         public string Id { get; set; }
@@ -68,14 +66,21 @@ namespace ClubManagementSystem.Models
         [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
         public string Name { get; set; }
 
-        [MaxLength(15, ErrorMessage = "Phone number cannot exceed 15 characters.")]
-        public string? PhoneNumber { get; set; }
-
         [EmailAddress(ErrorMessage = "Invalid email format.")]
-        public string? Email { get; set; } // Email field added for editing
+        public string? Email { get; set; }
+
+        [RegularExpression(@"^(\+60|0)[1-9]\d-\d{7,8}$", ErrorMessage = "Phone number must be in the format 012-3456789 or 03-12345678.")]
+        public string? PhoneNumber { get; set; }
 
         [MaxLength(255, ErrorMessage = "Photo URL cannot exceed 255 characters.")]
         public string? Photo { get; set; }
     }
+
+    public class DeleteCoachVM
+    {
+        [Required(ErrorMessage = "Coach ID is required.")]
+        public string Id { get; set; }
+    }
+
 
 }

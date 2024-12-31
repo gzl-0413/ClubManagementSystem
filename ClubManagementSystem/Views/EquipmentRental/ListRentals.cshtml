@@ -1,0 +1,35 @@
+﻿@model List<ClubManagementSystem.Models.EquipmentRentalViewModel>
+@{
+    ViewBag.Title = "Equipment Rental List";
+}
+
+<a href="/EquipmentRental/CreateRental">Create New Rental</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>Equipment</td>
+            <td>Quantity</td>
+            <td>Deposit Paid</td>
+            <td>Rented At</td>
+            <td>Actions</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rental in Model)
+        {
+            <tr>
+                <td>@rental.Id</td>
+                <td>@rental.EquipmentId</td>
+                <td>@rental.Quantity</td>
+                <td>@rental.DepositPaid.ToString("C")</td>
+                <td>@rental.RentedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>
+                    <button data-get="/EquipmentRental/EditRental/@rental.Id">Update</button>
+                    <button data-post="/EquipmentRental/CancelRental/@rental.Id">Cancel</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -9,15 +9,16 @@ public class DB : DbContext
     public DB(DbContextOptions<DB> options) : base(options) { }
 
     // DbSet
-    public DbSet<FacilityBookingCapacity> FacilityBookingCapacity { get; set; } 
     public DbSet<Facility> Facility { get; set; }
     public DbSet<FacilityCategories> FacilityCategories { get; set; }
     public DbSet<FacBooking> FacBooking { get; set; }
-    public DbSet<Event> Event { get; set; }
-    public DbSet<EventCategories> EventCategories { get; set; }
-    public DbSet<EventPricing> EventPricing { get; set; }
+    public DbSet<Equipment> Equipment { get; set; }
+    public DbSet<EquipmentRental> EquipmentRental { get; set; }
+   
     public DbSet<User> Users { get; set; }
     public DbSet<Admin> Admins { get; set; }
+    public DbSet<SuperAdmin> SuperAdmin { get; set; }
+
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<Member> Members { get; set; }
     public DbSet<Coach> Coaches { get; set; }
@@ -25,29 +26,10 @@ public class DB : DbContext
     public DbSet<Announcement> Announcements { get; set; }
 }
 
-// Entity Classes----------------------------------------------------------
-
+// Entity Classes
 #nullable disable warnings
 
-// Facility Module---------------------------------------------------------
-
-// Facility Booking Capacity
-public class FacilityBookingCapacity
-{
-    [Key]
-    public int Id { get; set; }
-    public int FacilityId { get; set; }
-    public DateOnly BookingDate { get; set; }
-    public TimeOnly StartTime { get; set; }
-    public TimeOnly EndTime { get; set; }
-    public bool isClass { get; set; }
-    public int RemainingCapacity { get; set; } 
-
-    // Navigation property
-    public Facility Facility { get; set; }
-}
-
-// Facility
+// --------------------------------------------------------Facility Module--------------------------------------------------------- //
 public class Facility
 {
     // Column
@@ -72,7 +54,6 @@ public class Facility
     public List<FacBooking> FacBookings { get; set; } = [];
 }
 
-// Categories---------------------------------------------------------------
 public class FacilityCategories
 {
     // Column
@@ -91,7 +72,6 @@ public class FacilityCategories
     public List<Facility> Facility { get; set; } = []; 
 }
 
-// Booking------------------------------------------------------------------
 public class FacBooking
 {
     // Column
@@ -119,6 +99,7 @@ public class FacBooking
     public DateTime CreatedAt { get; set; }
     public string CreatedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
+    public bool isDeleted { get; set; }
 
     // Foreign Key: Link to Facility
     [Required]
@@ -128,81 +109,34 @@ public class FacBooking
     public Facility Facility { get; set; }
 }
 
-// Equipment Rental Module----------------------------------------------------------
+// -------------------------------------------------------Facility Module End--------------------------------------------------------- //
+
+// ------------------------------------------------------Equipment Rental Module------------------------------------------------------ //
 public class Equipment
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public string Description { get; set; }
-    public decimal Price { get; set; }
-    public decimal Deposit { get; set; }
-    public bool IsRented { get; set; }
+    public int Stock { get; set; }
+    public decimal DepositAmount { get; set; }
+    public bool isDeleted { get; set; }
 }
+
 
 public class EquipmentRental
 {
     public int Id { get; set; }
-    public int EquipmentId { get; set; }
+    public int FacBookingId { get; set; } 
+    public int EquipmentId { get; set; } 
+    public int Quantity { get; set; }
+    public decimal DepositPaid { get; set; }
+    public DateTime RentedAt { get; set; } 
+    public DateTime? ReturnedAt { get; set; } 
+    public FacBooking FacBooking { get; set; }
     public Equipment Equipment { get; set; }
-    public int UserId { get; set; }
-    public User User { get; set; }
-    public DateTime RentalDate { get; set; }
-    public bool IsDepositPaid { get; set; }
-    public bool IsDepositRefunded { get; set; }
 }
-// Event Management Module---------------------------------------------------------------
-// Event---------------------------------------------------------------------
-public class Event
-{
-    // Column
-    [Key]
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string? Image { get; set; }
-    public string? Venue { get; set; }
-    public string? Description { get; set; }
-    public DateOnly StartDate { get; set; }
-    public DateOnly EndDate { get; set; }
-    public TimeOnly StartTime { get; set; }
-    public TimeOnly EndTime { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? ModifiedAt { get; set; }
+// ---------------------------------------------------Equipment Rental Module End------------------------------------------------------ //
 
-    // FK
-    public int EventCategoryId { get; set; }
-
-    // Navigation
-    public List<EventPricing> EventPricing { get; set; } = [];
-    public EventCategories EventCategory { get; set; }
-}
-
-// Event Categories------------------------------------------------------------
-public class EventCategories
-{
-    // Column
-    [Key]
-    public int Id { get; set; }
-    public string Name { get; set; }
-
-    // Navigation
-    public List<Event> Event { get; set; } = [];
-}
-
-// Event Pricing
-public class EventPricing
-{
-    [Key]
-    public int Id { get; set; }
-    public string Tier { get; set; } 
-    public decimal Price { get; set; }
-
-    // FK
-    public int EventId { get; set; }
-
-    // Navigation
-    public Event Event { get; set; }
-}
-
+// -------------------------------------------------------User Module------------------------------------------------------------------ //
 public abstract class User
 {
     [Key, Required, MaxLength(100)]
@@ -233,6 +167,12 @@ public class Admin : User
     // Additional properties for Admin, if any
 }
 
+public class SuperAdmin : User
+{ 
+
+}
+
+
 public class Staff : User
 {
     [Required]
@@ -249,6 +189,10 @@ public class Member : User
     [MaxLength(255)]
     public string PhotoURL { get; set; }
 }
+
+// ------------------------------------------------------User Module End---------------------------------------------------------------- //
+
+// -----------------------------------------------------Announcement Module------------------------------------------------------------- //
 
 public class Announcement
 {
@@ -275,6 +219,8 @@ public class Announcement
     //FK
     public string AdminEmail { get; set; }
 }
+
+// -----------------------------------------------------Announcement Module End---------------------------------------------------------- //
 
 public class Coach
 {

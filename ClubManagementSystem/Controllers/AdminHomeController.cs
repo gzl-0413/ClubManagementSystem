@@ -4,10 +4,11 @@ using ClubManagementSystem.Models;
 using X.PagedList.Extensions;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
+using System.Security.Claims;
 
 namespace ClubManagementSystem.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,SuperAdmin")]
 public class AdminController : Controller
 {
     private readonly DB _context;
@@ -22,9 +23,22 @@ public class AdminController : Controller
     // AdminHome: Dashboard for admins
     public IActionResult AdminHome()
     {
+        // Get the list of admins
         var admins = _context.Admins.ToList();
+
+        // Calculate member statistics
+        var totalMembers = _context.Members.Count();
+        var activeMembers = _context.Members.Count(m => m.IsActivated);
+        var inactiveMembers = totalMembers - activeMembers;
+
+        // Pass data to the view using ViewBag
+        ViewBag.TotalMembers = totalMembers;
+        ViewBag.ActiveMembers = activeMembers;
+        ViewBag.InactiveMembers = inactiveMembers;
+
         return View(admins);
     }
+
 
     // AdminPage: List all admins
     public IActionResult AdminPage(string name, string sort, string dir, int page = 1)
@@ -52,16 +66,26 @@ public class AdminController : Controller
 
 
     // AdminCreate: Display form to create a new admin
+    [Authorize(Roles = "SuperAdmin")]
     public IActionResult AdminCreate()
     {
         return View();
     }
+
 
     [HttpPost]
     public IActionResult AdminCreate(AdminCreateVM vm)
     {
         if (ModelState.IsValid)
         {
+            // Check if the logged-in user is a SuperAdmin
+            var loggedInUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (loggedInUserRole != "SuperAdmin")
+            {
+                TempData["Error"] = "You do not have permission to create an admin account.";
+                return RedirectToAction("AdminPage");
+            }
+
             // Check if email already exists
             if (_context.Admins.Any(a => a.Email == vm.Email))
             {
@@ -91,6 +115,7 @@ public class AdminController : Controller
         }
         return View(vm);
     }
+
 
     // AdminEdit: Display form to edit an existing admin
     public IActionResult AdminEdit(string email)

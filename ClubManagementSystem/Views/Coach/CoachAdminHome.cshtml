@@ -5,6 +5,20 @@
 }
 
 <div class="container">
+    <!-- Display Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
     <!-- Action Buttons -->
     <div class="row mb-3">
         <div class="col-md-6">
@@ -13,12 +27,11 @@
         <div class="col-md-6">
             <!-- Search Form -->
             <form method="get" class="form-inline float-right">
-                <input 
-                    type="text" 
-                    name="name" 
-                    value="@ViewBag.Name" 
-                    class="form-control" 
-                    placeholder="Search by name or email" />
+                <input type="text"
+                       name="name"
+                       value="@ViewBag.Name"
+                       class="form-control"
+                       placeholder="Search by name or email" />
                 <button type="submit" class="btn btn-secondary ml-2">Search</button>
             </form>
         </div>
@@ -55,14 +68,14 @@
                             {
                                 <img src="@Url.Content("~/coaches/" + coach.Photo)" alt="Coach Photo" style="width: 50px; height: 50px;" />
                             }
-
                         </td>
                         <td>
                             <a href="@Url.Action("EditCoach", "Coach", new { id = coach.CoachID })" class="btn btn-warning btn-sm">Edit</a>
-                            <form method="post" action="@Url.Action("DeleteCoach", "Coach")" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this coach?');">
-                                <input type="hidden" name="id" value="@coach.CoachID" />
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
+
+                            <!-- Direct Delete Link -->
+                            <a href="@Url.Action("DeleteCoach", "Coach", new { id = coach.CoachID })" class="btn btn-danger btn-sm">
+                                Delete
+                            </a>
                         </td>
                     </tr>
                 }
@@ -75,4 +88,3 @@
             }
         </tbody>
     </table>
-</div>

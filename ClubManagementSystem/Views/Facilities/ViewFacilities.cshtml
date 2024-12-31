@@ -1,0 +1,62 @@
+﻿@model List<FacilityViewModel>
+
+@{
+    ViewBag.Title = "Facilities";
+}
+
+<form method="get" asp-action="ViewFacilities">
+    <label for="category">Filter by Category:</label>
+    <select name="categoryId" asp-items="ViewBag.Categories">
+        <option value="">All Categories</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<div class="row mt-4">
+    @foreach (var facility in Model)
+    {
+        var images = facility.Image.Split(',');
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div id="carousel-@facility.Id" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @for (var i = 0; i < images.Length; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img src="~/images/facilities/@images[i]" class="d-block w-100" alt="Facility Image">
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@facility.Id" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-@facility.Id" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">@facility.Name</h5>
+                    <p class="card-text">@facility.Description</p>
+                    <p><strong>@facility.Price.ToString("C")</strong></p>
+                    <a href="/FacilityBooking/CreateMemberBooking" class="btn btn-primary">Book Now</a>
+                    <a href="/FacilityBooking/ViewMemberSlots" class="btn btn-primary">View Availability</a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+             document.addEventListener('DOMContentLoaded', function () {
+            var carousels = document.querySelectorAll('.carousel');
+            carousels.forEach(function (carousel) {
+                new bootstrap.Carousel(carousel, {
+                    interval: 3000, // Auto-slide every 3 seconds
+                    wrap: true      // Loop slides
+                });
+            });
+        });
+    </script>

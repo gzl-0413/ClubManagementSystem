@@ -4,6 +4,33 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ClubManagementSystem.Models;
 
+public class FacilityBookingHistoryViewModel
+{
+    public List<FacBooking> Bookings { get; set; }
+    public DateTime SelectedDate { get; set; }
+}
+
+public class MemberBookingViewModel
+{
+    [Required(ErrorMessage = "Phone number is required.")]
+    [StringLength(11, ErrorMessage = "Phone number cannot exceed 11 characters.")]
+    public string PhoneNumber { get; set; }
+    public int FacilityId { get; set; }
+    public DateOnly BookingDate { get; set; }
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly EndTime { get; set; }
+}
+
+public class BookingConfirmationViewModel
+{
+    public Facility Facility { get; set; }
+    public DateOnly BookingDate { get; set; }
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly EndTime { get; set; }
+    public decimal? Fee { get; set; }
+    public string Email { get; set; }
+}
+
 public class FacilityViewModel
 {
     // Facility Details
@@ -88,7 +115,36 @@ public class FacilityAvailabilityViewModel
     public List<FacBooking> Bookings { get; set; }
     public List<FacilityCategories> Categories { get; set; }
     public DateTime SelectedDate { get; set; }
-    public List<FacilityBookingCapacity> Capacities { get; set; }
+}
+
+public class EquipmentViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int Stock { get; set; }
+    public decimal DepositAmount { get; set; }
+}
+
+public class EquipmentRentalViewModel
+{
+    public int Id { get; set; }
+    public int EquipmentId { get; set; }
+    public int FacBookingId { get; set; }
+    public int Quantity { get; set; }
+
+    [Display(Name = "Deposit Paid")]
+    [Range(0, double.MaxValue, ErrorMessage = "Deposit must be a positive value.")]
+    public decimal DepositPaid { get; set; }
+
+    [Display(Name = "Rented At")]
+    [DataType(DataType.Date)]
+    public DateTime RentedAt { get; set; }
+
+    [Display(Name = "Returned At")]
+    [DataType(DataType.Date)]
+    public DateTime? ReturnedAt { get; set; }
+
+    public bool IsReturned => ReturnedAt.HasValue; // Helper property to check if returned
 }
 
 public static class TimeValidation

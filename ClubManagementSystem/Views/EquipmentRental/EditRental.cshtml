@@ -1,0 +1,60 @@
+﻿@model ClubManagementSystem.Models.EquipmentRentalViewModel
+
+@{
+    ViewBag.Title = "Edit Rental";
+}
+<form method="post" class="form">
+
+    <label asp-for="Id"></label>
+    <b>@Model?.Id</b>
+    <br>
+
+    <label asp-for="EquipmentId">Equipment Id</label>
+    <b>@Model?.EquipmentId</b>
+    <br>
+
+    <label for="Quantity">Quantity</label>
+    <input type="number" class="form-control" asp-for="Quantity" min="1" />
+    <div></div>
+    <label for="DepositPaid">Total Deposit</label>
+    <input asp-for="DepositPaid" class="form-control" type="number" min="0" id="DepositPaid" readonly />
+
+    <section>
+        <button>Save Changes</button>
+        <button type="reset">Reset</button>
+    </section>
+
+</form>
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function calculateDeposit() {
+                // Get the quantity entered by the user
+                var quantity = parseInt($('#Quantity').val()) || 0;
+
+                if (quantity > 0) {
+                    // Fetch the deposit amount for the equipment dynamically via AJAX
+                    var equipmentId = '@Model?.EquipmentId';
+
+                    $.get('@Url.Action("GetDepositAmount", "EquipmentRental")', { equipmentId: equipmentId }, function (depositAmount) {
+                        if (depositAmount > 0) {
+                            var totalDeposit = depositAmount * quantity;
+                            $('#DepositPaid').val(totalDeposit.toFixed(2)); // Update the Total Deposit field
+                        }
+                    });
+                } else {
+                    $('#DepositPaid').val('0.00'); // Reset deposit value if no quantity
+                }
+            }
+
+            // Trigger calculation when quantity changes
+            $('#Quantity').on('input', function () {
+                calculateDeposit();
+            });
+
+            // Initial calculation on page load
+            calculateDeposit();
+        });
+    </script>
+}

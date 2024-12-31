@@ -1,18 +1,31 @@
-﻿@model MemberBookingViewModel
+﻿@model FacBooking
 
 @{
-    ViewBag.Title = "Facility Booking";
+    ViewBag.Title = "Edit Booking";
 }
+
 
 <form method="post" class="form">
     <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Id"></label>
+    <b>@Model?.Id</b>
+    <br>
+
+    <label asp-for="Name">User Name</label>
+    <input id="UserName" asp-for="Name">
+    <span asp-validation-for="Name"></span>
 
     <label asp-for="PhoneNumber">Phone Number</label>
     <input id="PhoneNumber" asp-for="PhoneNumber" placeholder="e.g. 0123456789">
     <span asp-validation-for="PhoneNumber"></span>
 
-    <label for="FacilityId">Facility</label>
-    <select asp-for="FacilityId" class="form-control">
+    <label asp-for="Email">User Email</label>
+    <input id="UserEmail" asp-for="Email">
+    <span asp-validation-for="Email"></span>
+
+    <label asp-for="FacilityId">Facility</label>
+    <select id="FacilityId" asp-for="FacilityId" disabled>
         <option value="">Select Facility</option>
         @foreach (var facility in ViewBag.Facilities)
         {
@@ -20,22 +33,26 @@
         }
     </select>
 
-    <div></div>
-    <label for="BookingDate">Booking Date</label>
+    <label asp-for="BookingDate">Booking Date</label>
     <input type="date" id="BookingDate" asp-for="BookingDate">
     <span asp-validation-for="BookingDate"></span>
 
-    <label for="StartTime">Start Time</label>
+    <label asp-for="StartTime">Start Time</label>
     <input type="time" id="StartTime" asp-for="StartTime" step="3600" min="08:00" max="22:00">
     <span asp-validation-for="StartTime"></span>
 
-    <label for="EndTime">End Time</label>
+    <label asp-for="EndTime">End Time</label>
     <input type="time" id="EndTime" asp-for="EndTime" step="3600" min="08:00" max="22:00">
     <span asp-validation-for="EndTime"></span>
 
-    <button type="submit">Submit</button>
-</form>
+    <label asp-for="PayBy">Payment Method</label>
+    <input asp-for="PayBy" readonly/>
 
+    <section>
+        <button>Submit</button>
+        <button type="reset">Reset</button>
+    </section>
+</form>
 @section scripts {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
@@ -79,20 +96,20 @@
             restrictTime('StartTime');
             restrictTime('EndTime');
 
-                $('#StartTime, #EndTime').on('change', function () {
-                let time = this.value; // Time in 24-hour format (HH:mm)
-                if (time) {
-                    let [hour, minute] = time.split(':').map(Number);
+                $('#StartTime, #EndTime').on('input', function () {
+                let time = this.value;
+                let [hour, minute] = time.split(':').map(Number);
 
-                    // Convert to 12-hour format
-                    let period = hour >= 12 ? 'PM' : 'AM';
-                    hour = hour % 12 || 12; // Convert 0 -> 12 for AM
-
-                    let formattedTime = `${hour}:${minute.toString().padStart(2, '0')} ${period}`;
-                    console.log(`Selected Time: ${formattedTime}`); // Display for debugging
+                // Restrict hours between 8 AM and 10 PM
+                if (minute !== '00') {
+                    alert('Please select a full hour (e.g., 10:00 AM, 11:00 AM).');
+                    this.value = '';
                 }
-            });
+                if (hour < 8 || hour > 22 || (hour === 22 && minute > 0)) {
+                    alert('Please select a time between 8:00 AM and 10:00 PM.');
+                    this.value = '';
+                }
+                });
         });
     </script>
 }
-

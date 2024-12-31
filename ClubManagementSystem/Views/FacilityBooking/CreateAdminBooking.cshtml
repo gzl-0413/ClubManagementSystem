@@ -34,11 +34,11 @@
     <span asp-validation-for="BookingDate"></span>
 
     <label asp-for="StartTime">Start Time</label>
-    <input type="time" id="StartTime" asp-for="StartTime" step="3600">
+    <input type="time" id="StartTime" asp-for="StartTime" step="3600" min="08:00" max="22:00">
     <span asp-validation-for="StartTime"></span>
 
     <label asp-for="EndTime">End Time</label>
-    <input type="time" id="EndTime" asp-for="EndTime" step="3600">
+    <input type="time" id="EndTime" asp-for="EndTime" step="3600" min="08:00" max="22:00">
     <span asp-validation-for="EndTime"></span>
 
     <label asp-for="FeePaid">Fee Paid (RM)</label>
@@ -60,23 +60,21 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Get available dates from ViewBag
-                var availableDates = @Html.Raw(Json.Serialize(ViewBag.AvailableDates));
-
-            // Disable unavailable dates in the date picker
+            // Disable past dates and unavailable dates
             $('#BookingDate').on('input', function () {
                 var selectedDate = $(this).val();
+                var today = new Date().toISOString().split('T')[0];
 
-                // Check if the selected date is in the list of available dates
-                if (availableDates.indexOf(selectedDate) === -1) {
+                // Check if the selected date is past or unavailable
+                if (selectedDate < today) {
                     alert('This date is not available for booking!');
                     $(this).val('');  // Reset the date picker
                 }
             });
 
-            // Optionally, set minimum date as today
+            // Disable past dates in date picker
             $('#BookingDate').attr('min', new Date().toISOString().split('T')[0]);
-            
+
             let timer = null;
 
             // AJAX Email Search
@@ -109,11 +107,9 @@
                 let selectedEmail = $(this).data('email');
                 let selectedName = $(this).data('name');
 
-                // Set the email and user name
                 $('#UserEmail').val(selectedEmail);
-                $('#UserName').val(selectedName); // Assuming the UserName input is correctly bound to the Name field
+                $('#UserName').val(selectedName);
 
-                // Clear suggestions after selection
                 $('#emailSuggestions').empty();
             });
 
@@ -139,37 +135,44 @@
             }
 
             $('#FacilityId, #BookingDate, #StartTime, #EndTime, #UserEmail').on('change input', calculateFee);
-        
-            function restrictTime(inputId, intervalMinutes) {
-            let input = document.getElementById(inputId);
 
-            input.addEventListener('input', function () {
-                let time = input.value;
-                if (time) {
-                    let [hours, minutes] = time.split(':').map(Number);
-                    let totalMinutes = hours * 60 + minutes;
+            // Restrict time to hourly intervals and disable past times
+            function restrictTime(inputId) {
+                let input = document.getElementById(inputId);
 
-                    // Adjust time to the nearest valid interval
-                    let remainder = totalMinutes % intervalMinutes;
-                    if (remainder !== 0) {
-                        totalMinutes -= remainder;
-                        hours = Math.floor(totalMinutes / 60);
-                        minutes = totalMinutes % 60;
-                        input.value = `${padZero(hours)}:${padZero(minutes)}`;
+                input.addEventListener('input', function () {
+                    let now = new Date();
+                    let selectedDate = $('#BookingDate').val();
+                    let time = input.value;
+
+                    if (time && selectedDate) {
+                        let selectedDateTime = new Date(`${selectedDate}T${time}`);
+
+                        // Disable past times on the current day
+                        if (selectedDateTime <= now) {
+                            alert('Selected time is in the past. Please choose a future time.');
+                            input.value = '';
+                        }
                     }
+                });
+            }
+
+            restrictTime('StartTime');
+            restrictTime('EndTime');
+
+        $('#StartTime, #EndTime').on('change', function () {
+                let time = this.value; // Time in 24-hour format (HH:mm)
+                if (time) {
+                    let [hour, minute] = time.split(':').map(Number);
+
+                    // Convert to 12-hour format
+                    let period = hour >= 12 ? 'PM' : 'AM';
+                    hour = hour % 12 || 12; // Convert 0 -> 12 for AM
+
+                    let formattedTime = `${hour}:${minute.toString().padStart(2, '0')} ${period}`;
+                    console.log(`Selected Time: ${formattedTime}`); // Display for debugging
                 }
             });
-        }
-
-        // Pad single-digit numbers with leading zero
-        function padZero(num) {
-            return num < 10 ? '0' + num : num;
-        }
-
-        // Apply restriction on both time inputs (start time and end time)
-        restrictTime('StartTime', 60);  // 30-minute intervals
-        restrictTime('EndTime', 60);    // 30-minute intervals
         });
-
     </script>
 }
