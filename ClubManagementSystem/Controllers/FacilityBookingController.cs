@@ -87,6 +87,40 @@ namespace ClubManagementSystem.Controllers
 
             var facility = await db.Facility.FindAsync(booking.FacilityId);
 
+            if (booking.BookingDate < DateOnly.FromDateTime(DateTime.Now))
+            {
+                ModelState.AddModelError("BookingDate", "Booking date cannot be in the past.");
+                ViewBag.Facilities = db.Facility.Where(f => f.IsActive).ToList();
+                return View(booking);
+            }
+
+            if (booking.StartTime.Minute != 0 || booking.EndTime.Minute != 0)
+            {
+                ModelState.AddModelError("StartTime", "Bookings must be made in hourly intervals (e.g., 12:00 PM).");
+                ViewBag.Facilities = db.Facility.Where(f => f.IsActive).ToList();
+                return View(booking);
+            }
+
+            if (booking.EndTime <= booking.StartTime)
+            {
+                ModelState.AddModelError("EndTime", "End time must be after start time.");
+                ViewBag.Facilities = db.Facility.Where(f => f.IsActive).ToList();
+                return View(booking);
+            }
+
+            var overlappingBooking = await db.FacBooking
+                .Where(b => b.FacilityId == booking.FacilityId &&
+                            b.BookingDate == booking.BookingDate &&
+                            (b.StartTime < booking.EndTime && b.EndTime > booking.StartTime))
+                .FirstOrDefaultAsync();
+
+            if (overlappingBooking != null)
+            {
+                ModelState.AddModelError("StartTime", "The selected time slot is already booked.");
+                ViewBag.Facilities = db.Facility.Where(f => f.IsActive).ToList();
+                return View(booking);
+            }
+
             var memberEmail = User.Identity.Name;
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == memberEmail);
 
