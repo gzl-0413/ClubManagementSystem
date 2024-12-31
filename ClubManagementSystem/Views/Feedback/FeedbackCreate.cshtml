@@ -1,0 +1,162 @@
+﻿@{
+    ViewData["Title"] = "Create Feedback";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+        .photo-preview {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+            .photo-preview img {
+                width: 100px;
+                height: auto;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+        .go-back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+            .go-back:hover {
+                background-color: #c82333;
+                color: white;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>@ViewData["Title"]</h2>
+        <form asp-action="FeedbackCreate" enctype="multipart/form-data" method="post" onsubmit="return confirmSubmit()">
+            <label for="content">Feedback Content</label>
+            <textarea id="content" name="content" rows="4" required></textarea>
+
+            <label for="photos">Upload Photos (Max 3)</label>
+            <input type="file" id="photos" name="photos" multiple accept="image/*" onchange="previewPhotos()" />
+
+            <!-- Display selected photos -->
+            <div class="photo-preview" id="photo-preview"></div>
+
+            <button type="submit">Submit Feedback</button>
+        </form>
+
+        <!-- Go Back Button -->
+        <a href="javascript:goBack()" class="go-back">Go Back</a>
+    </div>
+
+    <script>
+        // Function to confirm form submission
+        function confirmSubmit() {
+            return confirm("Are you sure you want to submit the feedback?");
+        }
+
+        // Function to display alert on Go Back
+        function goBack() {
+            if (confirm("Are you sure you want to go back without saving your feedback?")) {
+                window.history.back();
+            }
+        }
+
+        function previewPhotos() {
+            const fileInput = document.getElementById("photos");
+            const previewContainer = document.getElementById("photo-preview");
+            previewContainer.innerHTML = ""; // Clear previous previews
+
+            // Check if more than 3 files are selected
+            if (fileInput.files.length > 3) {
+                alert("You can only upload a maximum of 3 photos.");
+                fileInput.value = ""; // Clear the file input
+                return;
+            }
+
+            // Display the selected photos
+            for (let i = 0; i < fileInput.files.length; i++) {
+                const file = fileInput.files[i];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const imgElement = document.createElement("img");
+                    imgElement.src = e.target.result;
+                    previewContainer.appendChild(imgElement);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>

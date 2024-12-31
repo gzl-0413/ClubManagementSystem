@@ -1,0 +1,150 @@
+﻿@model IEnumerable<FeedBackViewModel>
+
+@{
+    ViewData["Title"] = "Feedback List";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+        }
+
+        h2 {
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .feedback-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .feedback-item {
+            display: flex;
+            flex-direction: column; /* Stack content vertically */
+            align-items: flex-start;
+            width: 80%;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+            .feedback-item.unread {
+                background-color: #ffe6e6; /* Light pink for unread feedback */
+            }
+
+            .feedback-item.read {
+                background-color: #ffffff; /* White for read feedback */
+            }
+
+            .feedback-item:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            }
+
+            .feedback-item .status-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background-color: red;
+                position: absolute;
+                top: 15px;
+                left: 15px;
+            }
+
+            .feedback-item p {
+                font-size: 16px;
+                color: #333;
+                margin: 5px 0;
+                text-align: left;
+            }
+
+            .feedback-item .feedback-date {
+                font-size: 14px;
+                color: #555;
+            }
+
+            .feedback-item .feedback-content {
+                font-size: 16px;
+                color: #333;
+                margin: 10px 0;
+            }
+
+            .feedback-item .arrow-link {
+                position: absolute;
+                top: 50%;
+                right: 15px;
+                transform: translateY(-50%);
+                font-size: 24px; /* Increased size for emphasis */
+                color: #007bff;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .feedback-item .arrow-link:hover {
+                    color: #0056b3;
+                }
+
+        .create-feedback-btn {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+            .create-feedback-btn:hover {
+                background-color: #218838;
+                color: white;
+            }
+    </style>
+</head>
+<body>
+    <h2>@ViewData["Title"]</h2>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <a href="@Url.Action("FeedbackCreate", "Feedback")" class="create-feedback-btn">Create New Feedback</a>
+    </div>
+
+    <!-- Display the list of feedbacks -->
+    <div class="feedback-list">
+        @foreach (var feedback in Model)
+        {
+            <div class="feedback-item @(feedback.ReadStatus == "Unread" ? "unread" : "read")">
+                <!-- Red dot for unread feedback -->
+                @if (feedback.ReadStatus == "Unread")
+                {
+                    <div class="status-dot"></div>
+                }
+
+                <p class="feedback-date" style="padding-top: 15px;"><strong>Created On:</strong> @feedback.CreateDateTime.ToString("yyyy-MM-dd HH:mm")</p>
+                <p class="feedback-content">@feedback.Content</p>
+
+                <!-- Right arrow link -->
+                <a class="arrow-link" href="@Url.Action("FeedbackViewDetail", new { id = feedback.Id })">➤</a>
+            </div>
+        }
+    </div>
+</body>
+</html>

@@ -1,0 +1,196 @@
+﻿@model ClubManagementSystem.Models.FeedBackViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Added for button positioning */
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .feedback-details {
+            margin-bottom: 30px;
+        }
+
+            .feedback-details p {
+                font-size: 16px;
+                line-height: 1.6;
+            }
+
+        .feedback-photos img, .reply-photos img {
+            margin: 5px;
+            width: 100px;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+            /* Hover effect for photos */
+            .feedback-photos img:hover, .reply-photos img:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            }
+
+        .separator {
+            margin: 20px 0;
+            border: 0;
+            border-top: 1px solid #ccc;
+        }
+
+        .go-back {
+            position: absolute; /* Positioning the button */
+            bottom: 20px; /* Spacing from the bottom */
+            right: 20px; /* Spacing from the right */
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+            .go-back:hover {
+                background-color: #c82333;
+                color: white;
+            }
+
+        /* Lightbox styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+            .lightbox img {
+                max-width: 90%;
+                max-height: 90%;
+                margin: auto;
+                object-fit: contain;
+            }
+
+            .lightbox.active {
+                display: flex;
+            }
+
+        .lightbox-close {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            color: white;
+            font-size: 50px;
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <h2>Feedback Details</h2>
+        <div class="feedback-details">
+            <p><strong>User Name:</strong> @Model.UserName</p>
+            <p><strong>Content:</strong> @Model.Content</p>
+            <p><strong>Date Submitted:</strong> @Model.CreateDateTime.ToString("yyyy-MM-dd HH:mm")</p>
+            @if (!string.IsNullOrEmpty(Model.Photo) && Model.Photo != "-")
+            {
+                <p><strong>Photos:</strong></p>
+                <div class="feedback-photos">
+                    @foreach (var photo in Model.Photo.Split(','))
+                    {
+                        <img src="@Url.Content($"~/photos/{photo.Trim()}")" alt="Feedback Photo" />
+                    }
+                </div>
+            }
+
+            <hr class="separator" />
+
+            <p><strong>Reply Status:</strong> @Model.ReplyStatus</p>
+            @if (Model.ReplyStatus?.ToLower() == "replied")
+            {
+                <p><strong>Reply Content:</strong> @Model.ReplyContent</p>
+                <p><strong>Reply Date:</strong> @Model.ReplyDateTime?.ToString("yyyy-MM-dd HH:mm")</p>
+                <p><strong>Admin Name:</strong> @Model.AdminName</p>
+
+                @if (!string.IsNullOrEmpty(Model.Photo) && Model.Photo != "-")
+                {
+                    <p><strong>Reply Photos:</strong></p>
+                    <div class="reply-photos">
+                        @foreach (var replyPhoto in Model.ReplyPhoto.Split(','))
+                        {
+                            <img src="@Url.Content($"~/photos/{replyPhoto.Trim()}")" alt="Reply Photo" />
+                        }
+                    </div>
+                }
+            }
+        </div>
+        <a href="javascript:history.back()" class="go-back">Go Back</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const images = document.querySelectorAll("img");
+            const lightbox = document.createElement("div");
+            const lightboxImg = document.createElement("img");
+            const closeBtn = document.createElement("span");
+
+            // Set up lightbox container
+            lightbox.classList.add("lightbox");
+            lightbox.appendChild(lightboxImg);
+            closeBtn.classList.add("lightbox-close");
+            closeBtn.textContent = "×";
+            lightbox.appendChild(closeBtn);
+            document.body.appendChild(lightbox);
+
+            // Open lightbox on image click
+            images.forEach(img => {
+                img.addEventListener("click", function() {
+                    lightboxImg.src = img.src; // Set the lightbox image source to the clicked image
+                    lightbox.classList.add("active"); // Show the lightbox
+                });
+            });
+
+            // Close lightbox when the close button is clicked
+            closeBtn.addEventListener("click", function() {
+                lightbox.classList.remove("active"); // Hide the lightbox
+            });
+
+            // Close lightbox when clicking outside the image
+            lightbox.addEventListener("click", function(e) {
+                if (e.target === lightbox) {
+                    lightbox.classList.remove("active"); // Hide the lightbox
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
+

@@ -20,10 +20,11 @@ public class DB : DbContext
     public DbSet<SuperAdmin> SuperAdmin { get; set; }
 
     public DbSet<Staff> Staffs { get; set; }
+    public DbSet<StaffAttendance> StaffAttendances { get; set; }
     public DbSet<Member> Members { get; set; }
-    public DbSet<Coach> Coaches { get; set; }
-
     public DbSet<Announcement> Announcements { get; set; }
+    public DbSet<Feedback> Feedbacks { get; set; }
+
 }
 
 // Entity Classes
@@ -160,8 +161,6 @@ public abstract class User
     public string ActivationCode { get; set; }
 }
 
-
-
 public class Admin : User
 {
     // Additional properties for Admin, if any
@@ -173,15 +172,58 @@ public class SuperAdmin : User
 }
 
 
-public class Staff : User
+public class Staff
 {
+    [Key]
     [Required]
-    [MaxLength(255)]
-    public string Password { get; set; }
+    [MaxLength(50)] // Optional: Limit the length of the string
+    public string Id { get; set; } // String as the primary key
+
+    [Required, MaxLength(100)]
+    [EmailAddress]
+    public string Email { get; set; }
+
+    [Required, MaxLength(255)]
+    public string Hash { get; set; }
+
+    [Required, MaxLength(100)]
+    public string Name { get; set; }
 
     [MaxLength(255)]
     public string PhotoURL { get; set; }
+
+    // New Fields
+    [Required]
+    [MaxLength(20)]
+    public string Type { get; set; } // FullTimer or Part-Timer
+
+    public string? WorkTime { get; set; } // Work schedule for part-timers
+
+    // Navigation property for attendance records
+    public List<StaffAttendance> Attendances { get; set; } = new();
 }
+
+public class StaffAttendance
+{
+    [Key]
+    public int Id { get; set; } // Primary key
+
+    [Required]
+    public string StaffId { get; set; } // Foreign key to Staff
+
+    [Required]
+    public DateOnly Date { get; set; } // The date of attendance
+
+    public TimeOnly? CheckInTime { get; set; } // Check-in time for the day
+
+    public TimeOnly? CheckOutTime { get; set; } // Check-out time for the day
+
+    // Navigation property
+    public Staff Staff { get; set; }
+}
+
+
+
 
 
 public class Member : User
@@ -196,7 +238,7 @@ public class Member : User
 
 public class Announcement
 {
-    [Key, Required, MaxLength(100)]
+    [Key]
     public string Id { get; set; }
 
     [Required, MaxLength(300)]
@@ -212,7 +254,7 @@ public class Announcement
     public DateTime DateTime { get; set; }
 
     [Required]
-    public string Status { get; set; } 
+    public string Status { get; set; } // Posted, Pending, Error
 
     public string LikeUsers { get; set; } = string.Empty;
 
@@ -220,34 +262,34 @@ public class Announcement
     public string AdminEmail { get; set; }
 }
 
-// -----------------------------------------------------Announcement Module End---------------------------------------------------------- //
-
-public class Coach
+public class Feedback
 {
     [Key]
+    public string Id { get; set; }
+
+    [Required, MaxLength(2000)]
+    public string Content { get; set; }
+
+    public string Photo { get; set; }
+
     [Required]
-    public string CoachID { get; set; } // Unique identifier for each coach in the format CH1234
+    public string ReadStatus { get; set; } //read/unread
 
-    [Required(ErrorMessage = "Name is required.")]
-    [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
-    public string Name { get; set; }
+    [Required]
+    public DateTime CreateDateTime { get; set; }
 
-    [EmailAddress(ErrorMessage = "Invalid email format.")]
-    public string? Email { get; set; }
+    public string ReplyContent { get; set; }
 
-    [Required(ErrorMessage = "Password is required.")]
-    [MaxLength(255, ErrorMessage = "Password cannot exceed 255 characters.")]
-    public string Password { get; set; }
+    public string ReplyPhoto { get; set; }
 
-    [MaxLength(255, ErrorMessage = "Photo URL cannot exceed 255 characters.")]
-    public string? Photo { get; set; }
+    public DateTime? ReplyDateTime { get; set; }
 
-    [MaxLength(15, ErrorMessage = "Phone number cannot exceed 15 characters.")]
-    public string? PhoneNumber { get; set; }
+    [Required]
+    public string ReplyStatus { get; set; } //replied/pending
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime? ModifiedAt { get; set; }
+    // FK
+    public string AdminEmail { get; set; }
+    public string UserEmail { get; set; }
+
 }
-
-
 

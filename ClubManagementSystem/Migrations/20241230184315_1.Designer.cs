@@ -12,8 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClubManagementSystem.Migrations
 {
     [DbContext(typeof(DB))]
+<<<<<<<< HEAD:ClubManagementSystem/Migrations/20241230184315_1.Designer.cs
     [Migration("20241230184315_1")]
     partial class _1
+========
+    [Migration("20241226134235_j")]
+    partial class j
+>>>>>>>> 6c035a7861cdd127404a929bb26c380ab03a0968:ClubManagementSystem/Migrations/20241226134235_j.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,6 +31,49 @@ namespace ClubManagementSystem.Migrations
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("ClubManagementSystem.Models.Announcement", b =>
+<<<<<<<< HEAD:ClubManagementSystem/Migrations/20241230184315_1.Designer.cs
+========
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AdminEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LikeUsers")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Photo")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Announcements");
+                });
+
+            modelBuilder.Entity("ClubManagementSystem.Models.Event", b =>
+>>>>>>>> 6c035a7861cdd127404a929bb26c380ab03a0968:ClubManagementSystem/Migrations/20241226134235_j.Designer.cs
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(100)
@@ -296,6 +344,55 @@ namespace ClubManagementSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("FacilityCategories");
+                });
+
+            modelBuilder.Entity("ClubManagementSystem.Models.Feedback", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AdminEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Photo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReadStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReplyContent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReplyDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReplyPhoto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReplyStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("ClubManagementSystem.Models.User", b =>
