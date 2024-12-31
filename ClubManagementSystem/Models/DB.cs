@@ -20,7 +20,6 @@ public class DB : DbContext
     public DbSet<SuperAdmin> SuperAdmin { get; set; }
 
     public DbSet<Staff> Staffs { get; set; }
-    public DbSet<StaffAttendance> StaffAttendances { get; set; }
     public DbSet<Member> Members { get; set; }
     public DbSet<Announcement> Announcements { get; set; }
     public DbSet<Feedback> Feedbacks { get; set; }
@@ -171,7 +170,6 @@ public class SuperAdmin : User
 
 }
 
-
 public class Staff
 {
     [Key]
@@ -196,35 +194,7 @@ public class Staff
     [Required]
     [MaxLength(20)]
     public string Type { get; set; } // FullTimer or Part-Timer
-
-    public string? WorkTime { get; set; } // Work schedule for part-timers
-
-    // Navigation property for attendance records
-    public List<StaffAttendance> Attendances { get; set; } = new();
 }
-
-public class StaffAttendance
-{
-    [Key]
-    public int Id { get; set; } // Primary key
-
-    [Required]
-    public string StaffId { get; set; } // Foreign key to Staff
-
-    [Required]
-    public DateOnly Date { get; set; } // The date of attendance
-
-    public TimeOnly? CheckInTime { get; set; } // Check-in time for the day
-
-    public TimeOnly? CheckOutTime { get; set; } // Check-out time for the day
-
-    // Navigation property
-    public Staff Staff { get; set; }
-}
-
-
-
-
 
 public class Member : User
 {
@@ -261,7 +231,9 @@ public class Announcement
     //FK
     public string AdminEmail { get; set; }
 }
+// --------------------------------------------------Announcement Module End------------------------------------------------------------- //
 
+// --------------------------------------------------------Feedback Module--------------------------------------------------------------- //
 public class Feedback
 {
     [Key]
@@ -292,4 +264,4 @@ public class Feedback
     public string UserEmail { get; set; }
 
 }
-
+// -----------------------------------------------------Feedback Module End--------------------------------------------------------------- //
